@@ -1,7 +1,7 @@
 :host {
     display: flex;
     flex-direction: column;
-    justify-content: center; // center vertically
+    justify-content: center; 
     align-items: center; 
     min-height: 100vh;
     padding: 40px;
@@ -9,12 +9,31 @@
 }
 
 .landing-shell {
-    max-width: 640px;
+    max-width: 800px;
     width: 100%;
 }
 
 .label-input {
     padding-left: 10px;
+}
+
+.input-line {
+    display: flex;
+    align-items: center;
+}
+
+.pixel-button {
+    background-image: url('/assets/enter-button.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: 99.5px;
+    height: 51px;
+}
+
+.pixel-button:active {
+    background-image: url('/assets/enter-button-pressed.png');
+    transform: translateY(2px);
 }
 
 h1 {

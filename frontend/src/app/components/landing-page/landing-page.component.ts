@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, model, output } from '@angular/core';
 
 @Component({
   selector: 'app-landing-page',
@@ -9,17 +9,21 @@ import { Component, signal } from '@angular/core';
 
       <div class="nes-field">
         <label for="quest-input" class="label-input">Pitch your quest</label>
-        <input
-          id="quest-input"
-          type="text"
-          class="nes-input"
-          placeholder="Enter public Notion Page URL"
-        />
+        <div class="input-line">
+          <input
+            id="quest-input"
+            type="text"
+            class="nes-input"
+            placeholder="Enter public Notion Page URL"
+          />
+          <button (click)="submitQuest.emit()" class="pixel-button"></button>
+        </div>
       </div>
     </section>
   `,
   styleUrl: './landing-page.component.scss',
 })
 export class LandingPageComponent {
-  protected readonly notionUrl = signal<string>('');
+  readonly notionUrl = model.required<string>();
+  readonly submitQuest = output<void>();
 }
