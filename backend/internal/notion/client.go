@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/url"
 	"strings"
 	"time"
 
@@ -11,7 +12,18 @@ import (
 )
 
 func GetPublicNotionPageContent(pageUrl string) (string, error) {
-	// 1. Create a Chrome context (headless browser in the background).
+
+	// 1. TODO: Verify that url is valid notion url
+	url, err := url.ParseRequestURI(pageUrl)
+	if err != nil {
+		return "", fmt.Errorf("invalid URL: %w", err)
+	}
+
+	if url == nil || !strings.Contains(url.Hostname(), "notion.site") {
+		return "", fmt.Errorf("URL is not a valid public Notion page: %s", pageUrl)
+	}
+
+	// 2. Create a Chrome context (headless browser in the background).
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true), // Flip to false to watch the browser.
 		chromedp.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"),
@@ -29,9 +41,9 @@ func GetPublicNotionPageContent(pageUrl string) (string, error) {
 
 	var res string
 
-	// 2. Drive the steps inside Chrome.
+	// 3. Drive the steps inside Chrome.
 	fmt.Println("INFO - Loading Notion page in headless Chrome...")
-	err := chromedp.Run(ctx,
+	err = chromedp.Run(ctx,
 		chromedp.Navigate(pageUrl),
 		// Important: wait until an element proves the JS finished rendering.
 		// For Notion the `.notion-page-content` container signals the page is ready.
@@ -48,7 +60,7 @@ func GetPublicNotionPageContent(pageUrl string) (string, error) {
 		log.Fatal(err)
 	}
 
-	// 3. Clean the result and emit it.
+	// 4. Clean the result and emit it.
 	fmt.Println("INFO - --- Extracted content ---")
 
 	// Simple cleanup (Notion tends to cram lines together).
