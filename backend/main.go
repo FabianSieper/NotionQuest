@@ -5,6 +5,9 @@ import (
 	"net/http"
 
 	"github.com/FabianSieper/NotionQuest/internal/api"
+	"github.com/FabianSieper/NotionQuest/internal/cache"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 var (
@@ -12,28 +15,28 @@ var (
 )
 
 func main() {
+
+	fmt.Printf("INFO - Creating new cache\n")
+	cache := cache.NewGameCache()
+	server := api.NewServer(cache)
+	fmt.Printf("INFO - Successfully created new cache\n")
+
 	fmt.Printf("INFO - Backend is starting\n")
 
-	// Example: https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1
-	http.Handle("/api/loadNotionGame", addCORSHeaders(http.HandlerFunc(api.LoadNotionGameHandler)))
+	router := chi.NewRouter()
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:4200"},
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodOptions},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+
+	// Example Notion page: https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1
+	router.Post("/api/loadNotionGame", server.LoadNotionGameHandler)
 
 	fmt.Printf("INFO - Backend has started and listening on port %d\n", port)
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), router)
 
 	fmt.Printf("INFO - Backend has stopped\n")
-}
-
-func addCORSHeaders(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }

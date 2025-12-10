@@ -5,18 +5,30 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/FabianSieper/NotionQuest/internal/cache"
 	"github.com/FabianSieper/NotionQuest/internal/gameboard"
+	"github.com/FabianSieper/NotionQuest/internal/models"
 	"github.com/FabianSieper/NotionQuest/internal/notion"
 )
 
-func LoadNotionGameHandler(w http.ResponseWriter, r *http.Request) {
+type Server struct {
+	Cache *cache.GameCache
+}
+
+func NewServer(cache *cache.GameCache) *Server {
+	return &Server{
+		Cache: cache,
+	}
+}
+
+func (s *Server) LoadNotionGameHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		http.Error(w, fmt.Sprintf("only POST method is allowed: received %s", r.Method), http.StatusMethodNotAllowed)
 		return
 	}
 
-	var requestBody LoadNotionGameRequestBody
+	var requestBody models.LoadNotionGameRequestBody
 
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 
@@ -39,9 +51,20 @@ func LoadNotionGameHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Failed to parse Notion page content into game field: %v", err), http.StatusInternalServerError)
 		return
 	}
+	responseBody, err := gameboard.ExtractPageIdFromNotionUrl(requestBody.NotionUrl)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to extract page ID from Notion URL: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// TODO: fail if the pageid is already set so that the user can choose in the frontend if they want to overwrite or load the game state
+
+	// Store the parsed game field in the cache
+	s.Cache.Set(responseBody.PageId, *parsedGameField)
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(parsedGameField)
+	err = json.NewEncoder(w).Encode(responseBody)
 
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)

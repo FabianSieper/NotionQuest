@@ -15,4 +15,5 @@ We rely on [Taskfile](https://taskfile.dev) for simple automation. After install
 
 - Multiplayer - join a session based on a session id
 - Store game state in a database
+- a search to search for already loaded games based on ids
   

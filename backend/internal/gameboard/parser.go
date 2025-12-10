@@ -57,6 +57,19 @@ func ParseScenario(raw string) (*models.GameState, error) {
 	}, nil
 }
 
+func ExtractPageIdFromNotionUrl(notionUrl string) (models.LoadNotionResponseBody, error) {
+	// TODO: https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link
+	parts := strings.Split(notionUrl, "/")
+
+	// Should at least be split into two parts
+	if len(parts) < 2 {
+		return models.LoadNotionResponseBody{PageId: ""}, fmt.Errorf("invalid Notion URL: %s", notionUrl)
+	}
+
+	// TODO:
+	return models.LoadNotionResponseBody{PageId: ""}, nil
+}
+
 func getPlayerPosition(rows []string) (models.Position, error) {
 	for y, row := range rows {
 		for x, char := range row {

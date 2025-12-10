@@ -20,10 +20,15 @@ export class LandingPageContainer {
     this.logger.info('Notion URL submitted:', this.notionUrl());
 
     try {
+      // TODO: add loading state
       const response = await this.backendService.getInitialPlayingBoard(this.notionUrl());
       console.log(response);
     } catch (error) {
       this.logger.error('Error loading initial playing board:', error);
+    } finally {
+      // TODO: disable loading state
     }
+
+    this.notionUrl.set('');
   }
 }
