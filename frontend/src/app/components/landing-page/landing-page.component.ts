@@ -1,4 +1,4 @@
-import { Component, model, output } from '@angular/core';
+import { Component, input, model, output } from '@angular/core';
 
 @Component({
   selector: 'app-landing-page-component',
@@ -22,10 +22,18 @@ import { Component, model, output } from '@angular/core';
         </div>
       </div>
     </section>
+
+    @if (isLoading()) {
+    <div class="landing-overlay">
+      <div class="spinner"></div>
+      <h1 class="loading-text">Loading your quest</h1>
+    </div>
+    }
   `,
   styleUrl: './landing-page.component.scss',
 })
 export class LandingPageComponent {
+  readonly isLoading = input.required<boolean>();
   readonly notionUrl = model.required<string>();
   readonly submitQuest = output<void>();
 
