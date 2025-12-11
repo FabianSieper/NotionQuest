@@ -3,7 +3,7 @@ import { InfoMessageDetail } from '../../model/info-message.model';
 
 @Component({
   selector: 'app-info-message',
-  template: ` <section class="nes-container is-rounded landing-shell info-section">
+  template: ` <section [class]="getInfoSectionClasses()">
     <div class="info-section-text">
       <h3>{{ infoMessageDetails().header }}</h3>
       <div>{{ infoMessageDetails().message }}</div>
@@ -12,6 +12,13 @@ import { InfoMessageDetail } from '../../model/info-message.model';
   styleUrls: ['./info-message.component.scss'],
 })
 export class InfoMessageComponent {
-  // TODO: mind criticality
   readonly infoMessageDetails = input.required<InfoMessageDetail>();
+
+  protected getInfoSectionClasses() {
+    const baseClasses = 'nes-container is-rounded info-section ';
+    if (this.infoMessageDetails().criticality === 'ERROR') {
+      return baseClasses + 'error';
+    }
+    return baseClasses + 'warning';
+  }
 }

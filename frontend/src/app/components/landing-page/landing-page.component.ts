@@ -1,7 +1,7 @@
 import { Component, input, model, output } from '@angular/core';
+import { InfoMessageDetail } from '../../model/info-message.model';
 import { InfoMessageComponent } from '../info-message/info-message.component';
 import { LoadingTextComponent } from '../loading-text.component.ts/loading-text.component';
-import { InfoMessageDetail } from '../../model/info-message.model';
 
 @Component({
   selector: 'app-landing-page-component',

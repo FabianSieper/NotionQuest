@@ -99,8 +99,8 @@ export class LandingPageContainer {
   private setNotionUrlEmptyInfo() {
     this.infoMessageDetails.set({
       ...this.getBaseInfoMessageDetails(),
-      message: 'The Notion URL cannot be empty. Please provide a valid public Notion page URL.',
-      criticality: Criticality.WARNING,
+      message: 'The Notion URL cannot be empty.',
+      criticality: Criticality.ERROR,
     });
   }
 
@@ -112,7 +112,7 @@ export class LandingPageContainer {
     this.infoMessageDetails.set({
       ...this.getBaseInfoMessageDetails(),
       message: 'The provided URL does not seem to be a valid public Notion page URL.',
-      criticality: Criticality.WARNING,
+      criticality: Criticality.ERROR,
     });
   }
 
