@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { NGXLogger } from 'ngx-logger';
+import { Criticality, InfoMessageDetail } from '../../model/info-message.model';
 import { BackendService } from '../../services/backend.service';
 import { LandingPageComponent } from './landing-page.component';
 
@@ -10,7 +11,7 @@ import { LandingPageComponent } from './landing-page.component';
     <app-landing-page-component
       [(notionUrl)]="notionUrl"
       [isLoading]="isLoading()"
-      [infoMessage]="infoMessage()"
+      [infoMessageDetails]="infoMessageDetails()"
       (submitQuest)="handleEnterClick()"
     />
   `,
@@ -24,11 +25,11 @@ export class LandingPageContainer {
     'https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link'
   );
 
-  protected readonly isLoading = signal<boolean>(true);
-  protected readonly infoMessage = signal<string | undefined>(undefined);
+  protected readonly isLoading = signal<boolean>(false);
+  protected readonly infoMessageDetails = signal<InfoMessageDetail | undefined>(undefined);
 
   protected async handleEnterClick() {
-    this.infoMessage.set(undefined);
+    this.infoMessageDetails.set(undefined);
     this.logger.info('Notion URL submitted:', this.notionUrl());
 
     if (this.isNotionUrlEmpty()) {
@@ -75,15 +76,20 @@ export class LandingPageContainer {
   }
 
   private setDuplicateGameInfo() {
-    this.infoMessage.set(
-      'A Quest for the provided Notion page was already loaded in the past. Please provide a different Notion URL.'
-    );
+    this.infoMessageDetails.set({
+      ...this.getBaseInfoMessageDetails(),
+      message:
+        'A Quest for the provided Notion page was already loaded in the past. Please provide a different Notion URL.',
+      criticality: Criticality.WARNING,
+    });
   }
 
   private setErrorRequestInfo() {
-    this.infoMessage.set(
-      'An error occurred while loading your quest. Did you enter a valid Notion URL?'
-    );
+    this.infoMessageDetails.set({
+      ...this.getBaseInfoMessageDetails(),
+      message: 'An error occurred while loading your quest. Did you enter a valid Notion URL?',
+      criticality: Criticality.ERROR,
+    });
   }
 
   private isNotionUrlEmpty(): boolean {
@@ -91,7 +97,11 @@ export class LandingPageContainer {
   }
 
   private setNotionUrlEmptyInfo() {
-    this.infoMessage.set('You seem to have provided an empty Notion URL.');
+    this.infoMessageDetails.set({
+      ...this.getBaseInfoMessageDetails(),
+      message: 'The Notion URL cannot be empty. Please provide a valid public Notion page URL.',
+      criticality: Criticality.WARNING,
+    });
   }
 
   private isNotionUrlValid(): boolean {
@@ -99,6 +109,18 @@ export class LandingPageContainer {
   }
 
   private setInvalidUrlInfo() {
-    this.infoMessage.set('The provided URL does not seem to be a valid public Notion page URL.');
+    this.infoMessageDetails.set({
+      ...this.getBaseInfoMessageDetails(),
+      message: 'The provided URL does not seem to be a valid public Notion page URL.',
+      criticality: Criticality.WARNING,
+    });
+  }
+
+  private getBaseInfoMessageDetails(): InfoMessageDetail {
+    return {
+      header: 'Watch out!',
+      message: '',
+      criticality: Criticality.WARNING,
+    };
   }
 }

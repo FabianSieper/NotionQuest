@@ -1,6 +1,7 @@
 import { Component, input, model, output } from '@angular/core';
 import { InfoMessageComponent } from '../info-message/info-message.component';
 import { LoadingTextComponent } from '../loading-text.component.ts/loading-text.component';
+import { InfoMessageDetail } from '../../model/info-message.model';
 
 @Component({
   selector: 'app-landing-page-component',
@@ -23,8 +24,8 @@ import { LoadingTextComponent } from '../loading-text.component.ts/loading-text.
           <button type="button" (click)="submitQuest.emit()" class="pixel-button"></button>
         </div>
       </div>
-      @if (infoMessage(); as message) {
-      <app-info-message [message]="message" />
+      @if (infoMessageDetails(); as details) {
+      <app-info-message [infoMessageDetails]="details" />
       }
     </section>
     <app-loading-text [isLoading]="isLoading()" />
@@ -34,7 +35,7 @@ import { LoadingTextComponent } from '../loading-text.component.ts/loading-text.
 export class LandingPageComponent {
   readonly isLoading = input.required<boolean>();
   readonly notionUrl = model.required<string>();
-  readonly infoMessage = input<string | undefined>(undefined);
+  readonly infoMessageDetails = input<InfoMessageDetail | undefined>(undefined);
   readonly submitQuest = output<void>();
 
   protected onNotionUrlInput(event: Event): void {
