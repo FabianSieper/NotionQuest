@@ -10,6 +10,7 @@ import { LandingPageComponent } from './landing-page.component';
     <app-landing-page-component
       [(notionUrl)]="notionUrl"
       [isLoading]="isLoading()"
+      [infoMessage]="infoMessage()"
       (submitQuest)="handleEnterClick()"
     />
   `,
@@ -23,25 +24,81 @@ export class LandingPageContainer {
     'https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link'
   );
 
-  protected readonly isLoading = signal<boolean>(false);
+  protected readonly isLoading = signal<boolean>(true);
+  protected readonly infoMessage = signal<string | undefined>(undefined);
 
   protected async handleEnterClick() {
+    this.infoMessage.set(undefined);
     this.logger.info('Notion URL submitted:', this.notionUrl());
 
+    if (this.isNotionUrlEmpty()) {
+      this.logger.warn('Provided Notion URL is empty:', this.notionUrl());
+      this.setNotionUrlEmptyInfo();
+      return;
+    }
+
+    if (!this.isNotionUrlValid()) {
+      this.logger.warn('Provided Notion URL is not valid:', this.notionUrl());
+      this.setInvalidUrlInfo();
+      return;
+    }
+
+    await this.requestLoadingInitialPlayingBoard();
+  }
+
+  private async requestLoadingInitialPlayingBoard() {
     try {
       this.isLoading.set(true);
 
       this.logger.info('Sending request to load initial playing board...');
-      // TODO: if failing with http 409, then ask user if they want to overwrite existing game and if so, resend with overwrite flag
-      const response = await this.backendService.getInitialPlayingBoard(this.notionUrl());
+      const response = await this.backendService.loadInitialPlayingBoard(this.notionUrl());
 
       this.logger.info('Successfully loaded initial playing board. Received Response: ', response);
     } catch (error) {
-      this.logger.error('Error loading initial playing board:', error);
+      this.handleError(error as Error);
     } finally {
       this.isLoading.set(false);
     }
 
     this.notionUrl.set('');
+  }
+
+  private handleError(error: Error) {
+    this.logger.warn('Error loading initial playing board:', error);
+
+    // HTTP 409 indicates that there is already a game for the provided Notion page
+    if (error.message.includes('409')) {
+      this.setDuplicateGameInfo();
+    } else {
+      this.setErrorRequestInfo();
+    }
+  }
+
+  private setDuplicateGameInfo() {
+    this.infoMessage.set(
+      'A Quest for the provided Notion page was already loaded in the past. Please provide a different Notion URL.'
+    );
+  }
+
+  private setErrorRequestInfo() {
+    this.infoMessage.set(
+      'An error occurred while loading your quest. Did you enter a valid Notion URL?'
+    );
+  }
+
+  private isNotionUrlEmpty(): boolean {
+    return this.notionUrl().trim().length === 0;
+  }
+
+  private setNotionUrlEmptyInfo() {
+    this.infoMessage.set('You seem to have provided an empty Notion URL.');
+  }
+
+  private isNotionUrlValid(): boolean {
+    return this.notionUrl().includes('.notion.site/');
+  }
+
+  private setInvalidUrlInfo() {
+    this.infoMessage.set('The provided URL does not seem to be a valid public Notion page URL.');
   }
 }

@@ -10,7 +10,7 @@ export class BackendService {
 
   private httpClient = inject(HttpClient);
 
-  getInitialPlayingBoard(notionUrl: string): Promise<LoadNotionGameResponse> {
+  loadInitialPlayingBoard(notionUrl: string): Promise<LoadNotionGameResponse> {
     const body: LoadNotionGameRequest = { notionUrl };
     return firstValueFrom(
       this.httpClient.post<LoadNotionGameResponse>(this.getInitialPlayingBoardUrl(), body)

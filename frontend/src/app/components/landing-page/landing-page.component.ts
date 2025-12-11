@@ -1,8 +1,10 @@
 import { Component, input, model, output } from '@angular/core';
+import { InfoMessageComponent } from '../info-message/info-message.component';
+import { LoadingTextComponent } from '../loading-text.component.ts/loading-text.component';
 
 @Component({
   selector: 'app-landing-page-component',
-  imports: [],
+  imports: [InfoMessageComponent, LoadingTextComponent],
   template: `
     <section class="nes-container is-rounded landing-shell">
       <h1>Welcome to NotionQuest!</h1>
@@ -21,20 +23,18 @@ import { Component, input, model, output } from '@angular/core';
           <button type="button" (click)="submitQuest.emit()" class="pixel-button"></button>
         </div>
       </div>
+      @if (infoMessage(); as message) {
+      <app-info-message [message]="message" />
+      }
     </section>
-
-    @if (isLoading()) {
-    <div class="landing-overlay">
-      <div class="spinner"></div>
-      <h1 class="loading-text">Loading your quest</h1>
-    </div>
-    }
+    <app-loading-text [isLoading]="isLoading()" />
   `,
   styleUrl: './landing-page.component.scss',
 })
 export class LandingPageComponent {
   readonly isLoading = input.required<boolean>();
   readonly notionUrl = model.required<string>();
+  readonly infoMessage = input<string | undefined>(undefined);
   readonly submitQuest = output<void>();
 
   protected onNotionUrlInput(event: Event): void {
