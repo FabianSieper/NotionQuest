@@ -11,6 +11,7 @@ import { LandingPageComponent } from './landing-page.component';
     <app-landing-page-component
       [(notionUrl)]="notionUrl"
       [isLoading]="isLoading()"
+      [loadedSuccessfully]="loadedSuccessfully()"
       [infoMessageDetails]="infoMessageDetails()"
       (submitQuest)="handleEnterClick()"
     />
@@ -26,10 +27,13 @@ export class LandingPageContainer {
   );
 
   protected readonly isLoading = signal<boolean>(false);
+  protected readonly loadedSuccessfully = signal<boolean>(false);
   protected readonly infoMessageDetails = signal<InfoMessageDetail | undefined>(undefined);
 
   protected async handleEnterClick() {
     this.infoMessageDetails.set(undefined);
+    this.loadedSuccessfully.set(false);
+
     this.logger.info('Notion URL submitted:', this.notionUrl());
 
     if (this.isNotionUrlEmpty()) {
@@ -55,13 +59,12 @@ export class LandingPageContainer {
       const response = await this.backendService.loadInitialPlayingBoard(this.notionUrl());
 
       this.logger.info('Successfully loaded initial playing board. Received Response: ', response);
+      this.loadedSuccessfully.set(true);
     } catch (error) {
       this.handleError(error as Error);
     } finally {
       this.isLoading.set(false);
     }
-
-    this.notionUrl.set('');
   }
 
   private handleError(error: Error) {

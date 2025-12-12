@@ -1,11 +1,11 @@
 import { Component, input, model, output } from '@angular/core';
 import { InfoMessageDetail } from '../../model/info-message.model';
 import { InfoMessageComponent } from '../info-message/info-message.component';
-import { LoadingTextComponent } from '../loading-text.component.ts/loading-text.component';
+import { OverlayComponent } from '../overlay/overlay.component';
 
 @Component({
   selector: 'app-landing-page-component',
-  imports: [InfoMessageComponent, LoadingTextComponent],
+  imports: [InfoMessageComponent, OverlayComponent],
   template: `
     <section class="nes-container is-rounded landing-shell">
       <h1>Welcome to NotionQuest!</h1>
@@ -28,12 +28,21 @@ import { LoadingTextComponent } from '../loading-text.component.ts/loading-text.
       <app-info-message [infoMessageDetails]="details" />
       }
     </section>
-    <app-loading-text [isLoading]="isLoading()" />
+    @if (isLoading()) {
+    <app-overlay>
+      <h1 class="loading-text translateUp" slot="slot">{{ 'Loading your quest' }}</h1>
+    </app-overlay>
+    } @else if (loadedSuccessfully()) {
+    <app-overlay>
+      <h1 class="translateUp" slot="slot">{{ 'Loaded with Success!' }}</h1>
+    </app-overlay>
+    }
   `,
   styleUrl: './landing-page.component.scss',
 })
 export class LandingPageComponent {
   readonly isLoading = input.required<boolean>();
+  readonly loadedSuccessfully = input.required<boolean>();
   readonly notionUrl = model.required<string>();
   readonly infoMessageDetails = input<InfoMessageDetail | undefined>(undefined);
   readonly submitQuest = output<void>();
