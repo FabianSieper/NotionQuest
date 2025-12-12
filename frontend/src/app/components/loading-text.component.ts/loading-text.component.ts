@@ -1,14 +1,16 @@
 import { Component, input } from '@angular/core';
+import { OverlayComponent } from '../overlay/overlay.component';
 
 @Component({
   selector: 'app-loading-text',
+  providers: [OverlayComponent],
   template: ` @if (isLoading()) {
-    <div class="landing-overlay">
-      <div class="spinner"></div>
-      <h1 class="loading-text">{{ text() }}</h1>
-    </div>
+    <app-overlay>
+      <h1 class="loading-text" slot="slot">{{ text() }}</h1>
+    </app-overlay>
     }`,
   styleUrls: ['./loading-text.component.scss'],
+  imports: [OverlayComponent],
 })
 export class LoadingTextComponent {
   readonly isLoading = input.required<boolean>();

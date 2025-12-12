@@ -16,14 +16,6 @@
     100% { content: ''; }
 }
 
-.landing-overlay {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    background: rgba(7, 7, 16, 0.85);
-}
-
 .loading-text {
-    transform: translateY(-90px);
+    transform: translateY(140px);
 }
