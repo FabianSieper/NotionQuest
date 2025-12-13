@@ -27,13 +27,14 @@ func main() {
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:4200"},
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodOptions},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowedHeaders:   []string{"Accept", "Content-Type"},
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
 
 	// Example Notion page: https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1
 	router.Post("/api/loadNotionGame", server.LoadNotionGameHandler)
+	router.Get("/api/game/{gameId}", server.GetGameState)
 
 	fmt.Printf("INFO - Backend has started and listening on port %d\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%d", port), router)

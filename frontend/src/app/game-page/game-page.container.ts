@@ -35,11 +35,21 @@ export class GamePageContainer {
 
     try {
       this.logger.info(`Loading game with game id ${gameId}`);
-      const loadedGame = await this.backendService.loadGameState(gameId);
+      const loadedGame = await this.backendService.getGameState(gameId);
       this.loadedGame.set(loadedGame);
       this.logger.info(`Successfully loaded game with ${gameId}`);
-    } catch {
-      this.logger.warn(`Failed to load game with game id ${gameId}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('404')) {
+          this.logger.error(`Game with gameId ${gameId} was not found.`);
+        }
+      } else {
+        this.logger.error(
+          `Failed to load game with game id ${gameId}. Received error: ${JSON.stringify(error)}`
+        );
+      }
+      // TODO: catch http 404
+      // TODO: add response error message
     }
 
     this.isGameLoading.set(false);

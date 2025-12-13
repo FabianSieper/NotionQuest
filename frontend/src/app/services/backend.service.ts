@@ -18,12 +18,12 @@ export class BackendService {
     );
   }
 
-  loadGameState(gameId: string): Promise<GameState> {
-    return firstValueFrom(this.httpClient.get<GameState>(this.getLoadGameStateUrl + gameId));
+  getGameState(gameId: string): Promise<GameState> {
+    return firstValueFrom(this.httpClient.get<GameState>(this.getLoadGameStateUrl() + gameId));
   }
 
   getLoadGameStateUrl() {
-    return `${this.baseUrl}/api/loadGameState/`;
+    return `${this.baseUrl}/api/game/`;
   }
 
   getLoadInitialPlayingBoardUrl() {
