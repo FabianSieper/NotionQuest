@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { LoadNotionGameRequest } from '../landing-page/model/load-notion-game-request.model';
-import { LoadNotionGameResponse } from '../landing-page/model/load-notion-game-response.model';
+import { GameState } from '../model/load-game-state-response.model';
+import { LoadNotionGameRequest } from '../model/load-notion-game-request.model';
+import { LoadNotionGameResponse } from '../model/load-notion-game-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class BackendService {
@@ -13,11 +14,19 @@ export class BackendService {
   loadInitialPlayingBoard(notionUrl: string): Promise<LoadNotionGameResponse> {
     const body: LoadNotionGameRequest = { notionUrl };
     return firstValueFrom(
-      this.httpClient.post<LoadNotionGameResponse>(this.getInitialPlayingBoardUrl(), body)
+      this.httpClient.post<LoadNotionGameResponse>(this.getLoadInitialPlayingBoardUrl(), body)
     );
   }
 
-  getInitialPlayingBoardUrl() {
+  loadGameState(gameId: string): Promise<GameState> {
+    return firstValueFrom(this.httpClient.get<GameState>(this.getLoadGameStateUrl + gameId));
+  }
+
+  getLoadGameStateUrl() {
+    return `${this.baseUrl}/api/loadGameState/`;
+  }
+
+  getLoadInitialPlayingBoardUrl() {
     return `${this.baseUrl}/api/loadNotionGame`;
   }
 }
