@@ -14,10 +14,10 @@ tasks:
     cmds:
       - cd frontend && ng serve
 
-  test-load-notion-game:
-    desc: "Send a sample request to /loadNotionGame (backend must be running)"
+  test-load-game-state-from-notion:
+    desc: "Send a sample request to /loadGameStateFromNotion (backend must be running)"
     cmds:
       - |
-        curl -X GET http://localhost:8080/loadNotionGame \
+        curl -X POST http://localhost:8080/api/loadGameStateFromNotion \
           -H 'Content-Type: application/json' \
           --data '{"notionUrl":"https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1"}'

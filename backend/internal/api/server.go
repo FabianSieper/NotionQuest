@@ -21,7 +21,7 @@ func NewServer(cache *cache.GameCache) *Server {
 		Cache: cache,
 	}
 }
-func (s *Server) GetGameState(w http.ResponseWriter, r *http.Request) {
+func (s *Server) LoadGameStateFromCache(w http.ResponseWriter, r *http.Request) {
 
 	gameId := chi.URLParam(r, "gameId")
 
@@ -49,14 +49,14 @@ func (s *Server) GetGameState(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) LoadNotionGameHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) LoadGameStateFromNotionHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		http.Error(w, fmt.Sprintf("only POST method is allowed: received %s", r.Method), http.StatusMethodNotAllowed)
 		return
 	}
 
-	var requestBody models.LoadNotionGameRequestBody
+	var requestBody models.LoadGameStateFromNotionRequestBody
 
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 

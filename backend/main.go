@@ -33,8 +33,8 @@ func main() {
 	}))
 
 	// Example Notion page: https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1
-	router.Post("/api/loadNotionGame", server.LoadNotionGameHandler)
-	router.Get("/api/game/{gameId}", server.GetGameState)
+	router.Post("/api/loadGameStateFromNotion", server.LoadGameStateFromNotionHandler)
+	router.Get("/api/loadGameStateFromCache/{gameId}", server.LoadGameStateFromCache)
 
 	fmt.Printf("INFO - Backend has started and listening on port %d\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%d", port), router)

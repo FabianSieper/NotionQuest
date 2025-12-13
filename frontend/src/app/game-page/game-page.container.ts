@@ -35,7 +35,7 @@ export class GamePageContainer {
 
     try {
       this.logger.info(`Loading game with game id ${gameId}`);
-      const loadedGame = await this.backendService.getGameState(gameId);
+      const loadedGame = await this.backendService.loadGameStateFromCache(gameId);
       this.loadedGame.set(loadedGame);
       this.logger.info(`Successfully loaded game with ${gameId}`);
     } catch (error) {

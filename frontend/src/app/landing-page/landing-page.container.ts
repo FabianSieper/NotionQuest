@@ -56,7 +56,7 @@ export class LandingPageContainer {
       this.isLoading.set(true);
 
       this.logger.info('Sending request to load initial playing board...');
-      const response = await this.backendService.loadInitialPlayingBoard(this.notionUrl());
+      const response = await this.backendService.loadGameStateFromNotion(this.notionUrl());
 
       this.logger.info('Successfully loaded initial playing board. Received Response: ', response);
       this.loadedSuccessfully.set(true);

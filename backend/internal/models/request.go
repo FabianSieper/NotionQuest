@@ -1,6 +1,6 @@
 package models
 
-type LoadNotionGameRequestBody struct {
+type LoadGameStateFromNotionRequestBody struct {
 	NotionUrl string `json:"notionUrl"`
 	Overwrite bool   `json:"overwrite"`
 }

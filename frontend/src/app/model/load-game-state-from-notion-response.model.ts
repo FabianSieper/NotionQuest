@@ -19,6 +19,6 @@ export interface Monster {
   isDead: boolean;
 }
 
-export interface LoadNotionGameResponse {
+export interface LoadGameStateFromNotionResponse {
   pageId: string;
 }
