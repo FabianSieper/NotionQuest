@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { NGXLogger } from 'ngx-logger';
-import { Criticality, InfoMessageDetail } from '../../model/info-message.model';
-import { BackendService } from '../../services/backend.service';
+import { BackendService } from '../services/backend.service';
 import { LandingPageComponent } from './landing-page.component';
+import { Criticality, InfoMessageDetail } from './model/info-message.model';
 
 @Component({
   selector: 'app-landing-page-container',

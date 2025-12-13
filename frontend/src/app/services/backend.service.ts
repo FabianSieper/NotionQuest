@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { LoadNotionGameRequest } from '../model/load-notion-game-request.model';
-import { LoadNotionGameResponse } from '../model/load-notion-game-response.model';
+import { LoadNotionGameRequest } from '../landing-page/model/load-notion-game-request.model';
+import { LoadNotionGameResponse } from '../landing-page/model/load-notion-game-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class BackendService {
