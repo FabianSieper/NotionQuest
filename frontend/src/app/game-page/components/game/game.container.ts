@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, inject, OnDestroy, ViewChild } from '@angular/core';
+import { NGXLogger } from 'ngx-logger';
 import { GameService } from '../../services/game.service';
 
 @Component({
@@ -6,8 +7,9 @@ import { GameService } from '../../services/game.service';
   imports: [],
   template: ` <canvas #playfield width="640" height="640"></canvas> `,
 })
-export class GameContainer implements AfterViewInit, OnDestroy {
+export class GameContainer implements OnDestroy {
   private readonly gameService = inject(GameService);
+  private readonly logger = inject(NGXLogger);
 
   // The interval after which new frames are rendered im ms
   private readonly frameInterval = 1000 / 3;
@@ -24,6 +26,23 @@ export class GameContainer implements AfterViewInit, OnDestroy {
   @ViewChild('playfield', { static: true })
   private canvas?: ElementRef<HTMLCanvasElement>;
 
+  private readonly startAnimationLoopEffect = effect(() => {
+    const game = this.gameService.game();
+    const canvas = this.canvas;
+
+    if (game && canvas) {
+      this.ctx = canvas.nativeElement.getContext('2d') ?? undefined;
+      this.logger.info('Starting animation loop');
+      this.startAnimationLoop();
+    } else {
+      this.logger.warn(
+        `Not starint animation loop because either game or canvas is not defined. Game: ${JSON.stringify(
+          game
+        )}, canvas: ${JSON.stringify(canvas)}`
+      );
+    }
+  });
+
   startAnimationLoop() {
     const loop = (timestamp: number) => {
       if (timestamp - this.lastDraw >= this.frameInterval) {
@@ -34,19 +53,6 @@ export class GameContainer implements AfterViewInit, OnDestroy {
     };
 
     this.rafId = requestAnimationFrame(loop);
-  }
-
-  ngAfterViewInit(): void {
-    const gameState = this.gameService.getGameState();
-
-    if (gameState && this.canvas) {
-      this.ctx = this.canvas.nativeElement.getContext('2d') ?? undefined;
-      this.startAnimationLoop();
-    } else if (gameState) {
-      // TODO: display error that canvas is not defined yet
-    } else {
-      // TODO: display error that game state is undefined
-    }
   }
 
   ngOnDestroy(): void {

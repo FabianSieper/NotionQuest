@@ -76,7 +76,6 @@ export class LandingPageContainer {
       if (this.loadedSuccessfully()) {
         this.router.navigate(['/game', loadNotionGameResponse.pageId]);
       }
-      // TODO: display information to user that they are re-routed in just some seconds ...
     }, 2500);
   }
 

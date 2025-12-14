@@ -42,11 +42,10 @@ export class GamePageContainer {
     try {
       this.logger.info(`Loading game with game id ${gameId}`);
       const loadedGame = await this.backendService.loadGameStateFromCache(gameId);
-      this.gameService.setGameState(loadedGame);
+      await this.gameService.setGameState(loadedGame);
       this.logger.info(`Successfully loaded game with ${gameId}`);
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
-        // TODO: remov
         if (error.status == 404) {
           this.logger.error(`Game with gameId ${gameId} was not found.`);
           this.warning.set(`Game with gameId \n'${gameId}'\nwas not found.`);
