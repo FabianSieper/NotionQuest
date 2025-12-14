@@ -1,10 +1,13 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { NGXLogger } from 'ngx-logger';
 import { GameState } from '../../model/load-game-state-response.model';
 import { mapToGame } from '../mapper/game.mapper';
-import { Game, Rect, SpriteDetails } from '../model/game.model';
+import { Game, GameElement, PlayingBoard, Rect, SpriteDetails } from '../model/game.model';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
+  private readonly logger = inject(NGXLogger);
+
   private readonly _game = signal<Game | undefined>(undefined);
   readonly game = computed(() => this._game());
 
@@ -14,16 +17,52 @@ export class GameService {
 
   async drawFrame(ctx: CanvasRenderingContext2D | undefined) {
     if (!ctx) return;
-
     this.clearDrawingBoard(ctx);
-    const playerGameObject = this._game()?.player;
-    if (!playerGameObject) throw Error('Did not load player game object');
+    this.drawGame(ctx);
+  }
 
-    const source = this.calculateSpriteSection(playerGameObject.spriteDetails);
-    // TODO: calculate target details
-    const target = { x: 120, y: 200, w: 1000, h: 1000 }; // canvas position/size
+  private drawGame(ctx: CanvasRenderingContext2D) {
+    // TODO: draw board
+    // TODO: draw enemies
 
-    this.drawSprite(ctx, playerGameObject.spriteDetails.image, source, target);
+    // Draw player
+    this.drawGameElement(ctx, this._game()?.player, this._game()?.playingBoard);
+  }
+
+  private drawGameElement(
+    ctx: CanvasRenderingContext2D,
+    gameElement?: GameElement,
+    playingBoard?: PlayingBoard
+  ) {
+    const spriteDetails = gameElement?.spriteDetails;
+
+    if (!spriteDetails) {
+      this.logger.warn('Not drawing sprite because details are undefined');
+      return;
+    }
+
+    if (!playingBoard) {
+      this.logger.warn('Not drawing sprite because playing board is undefined');
+      return;
+    }
+
+    const source = this.calculateSpriteSection(spriteDetails);
+    const target = this.calculateBoardTarget(gameElement, playingBoard);
+
+    this.drawSprite(ctx, spriteDetails.image, source, target);
+  }
+
+  private calculateBoardTarget(gameElement: GameElement, playingBoard: PlayingBoard): Rect {
+    // TODO: compute once and keep in playingBoard?
+    const tileWidth = playingBoard.width / playingBoard.amountFieldsX;
+    const tileHeight = playingBoard.height / playingBoard.amountFieldsY;
+
+    return {
+      x: gameElement.position.x * tileWidth,
+      y: gameElement.position.y * tileHeight,
+      w: tileWidth,
+      h: tileHeight,
+    };
   }
 
   // Returns x, y, width and height within a sprite which is to be rendered
@@ -54,6 +93,7 @@ export class GameService {
   }
 
   private clearDrawingBoard(ctx: CanvasRenderingContext2D) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = '#333';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
 }
