@@ -16,7 +16,7 @@ export class GameService {
     this._game.set(await mapToGame(gameState));
   }
 
-  async drawFrame(ctx: CanvasRenderingContext2D | undefined) {
+  async computationStep(ctx: CanvasRenderingContext2D | undefined) {
     if (!ctx) return;
     this.clearDrawingBoard(ctx);
     this.drawGame(ctx);

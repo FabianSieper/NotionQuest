@@ -44,7 +44,7 @@ export class GameContainer implements OnDestroy {
     const loop = (timestamp: number) => {
       if (timestamp - this.lastDraw >= this.frameInterval) {
         this.lastDraw = timestamp;
-        this.gameService.drawFrame(this.ctx);
+        this.gameService.computationStep(this.ctx);
       }
       this.rafId = requestAnimationFrame(loop);
     };

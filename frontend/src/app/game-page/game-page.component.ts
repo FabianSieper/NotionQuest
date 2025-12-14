@@ -24,7 +24,9 @@ import { GameContainer } from './components/game/game.container';
     } @else if (isInitialGameStateLoading()) {
     <app-loading-your-quest-overlay-component />
     } @else {
-    <app-game-container />
+    <div class="playing-board">
+      <app-game-container />
+    </div>
     }
   `,
 })
