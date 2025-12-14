@@ -1,5 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
+import { LoadGameStateFromNotionResponse } from '../model/load-game-state-from-notion-response.model';
 import { BackendService } from '../services/backend.service';
 import { LandingPageComponent } from './landing-page.component';
 import { Criticality, InfoMessageDetail } from './model/info-message.model';
@@ -20,6 +22,7 @@ import { Criticality, InfoMessageDetail } from './model/info-message.model';
 export class LandingPageContainer {
   private logger = inject(NGXLogger);
   private backendService = inject(BackendService);
+  private router = inject(Router);
 
   // TODO: set to empty string by default
   protected readonly notionUrl = signal<string>(
@@ -60,11 +63,21 @@ export class LandingPageContainer {
 
       this.logger.info('Successfully loaded initial playing board. Received Response: ', response);
       this.loadedSuccessfully.set(true);
+      this.forwardUserToGamePage(response);
     } catch (error) {
       this.handleError(error as Error);
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  private forwardUserToGamePage(loadNotionGameResponse: LoadGameStateFromNotionResponse) {
+    setTimeout(() => {
+      if (this.loadedSuccessfully()) {
+        this.router.navigate(['/game', loadNotionGameResponse.pageId]);
+      }
+      // TODO: display information to user that they are re-routed in just some seconds ...
+    }, 2500);
   }
 
   private handleError(error: Error) {

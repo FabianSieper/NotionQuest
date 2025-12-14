@@ -4,22 +4,25 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { map } from 'rxjs';
-import { GameState } from '../model/load-game-state-response.model';
 import { BackendService } from '../services/backend.service';
 import { GamePageComponent } from './game-page.component';
+import { GameService } from './services/game.service';
 
 @Component({
   selector: 'app-game-page-container',
   imports: [GamePageComponent],
-  template: ` <app-game-page-component [loadedGame]="loadedGame()" [warning]="warning()" />`,
+  template: ` <app-game-page-component
+    [isInitialGameStateLoading]="isInitialGameStateLoading()"
+    [warning]="warning()"
+  />`,
 })
 export class GamePageContainer {
   private readonly logger = inject(NGXLogger);
   private readonly route = inject(ActivatedRoute);
   private readonly backendService = inject(BackendService);
+  private readonly gameService = inject(GameService);
 
-  private readonly isGameLoading = signal(false);
-  protected readonly loadedGame = signal<GameState | undefined>(undefined);
+  protected readonly isInitialGameStateLoading = signal(false);
   protected readonly warning = signal<string | undefined>(undefined);
 
   private readonly gameId: Signal<string | undefined> = toSignal(
@@ -34,12 +37,12 @@ export class GamePageContainer {
       return;
     }
 
-    this.isGameLoading.set(true);
+    this.isInitialGameStateLoading.set(true);
 
     try {
       this.logger.info(`Loading game with game id ${gameId}`);
       const loadedGame = await this.backendService.loadGameStateFromCache(gameId);
-      this.loadedGame.set(loadedGame);
+      this.gameService.setGameState(loadedGame);
       this.logger.info(`Successfully loaded game with ${gameId}`);
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
@@ -53,10 +56,8 @@ export class GamePageContainer {
           `Failed to load game with game id ${gameId}. Received error: ${JSON.stringify(error)}`
         );
       }
-      // TODO: catch http 404
-      // TODO: add response error message
     }
 
-    this.isGameLoading.set(false);
+    this.isInitialGameStateLoading.set(false);
   });
 }

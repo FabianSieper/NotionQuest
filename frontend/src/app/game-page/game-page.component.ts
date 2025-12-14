@@ -1,13 +1,19 @@
 import { Component, computed, input } from '@angular/core';
 import { InfoMessageComponent } from '../components/info-message/info-message.component';
+import { LoadingYourQuestOverlayComponent } from '../components/loading-your-quest-overlay/loading-your-quest-overlay.component';
 import { OverlayComponent } from '../components/overlay/overlay.component';
 import { Criticality, InfoMessageDetail } from '../landing-page/model/info-message.model';
-import { GameState } from '../model/load-game-state-response.model';
+import { GameContainer } from './components/game/game.container';
 
 @Component({
   selector: 'app-game-page-component',
   styleUrl: 'game-page.component.scss',
-  imports: [InfoMessageComponent, OverlayComponent],
+  imports: [
+    InfoMessageComponent,
+    OverlayComponent,
+    GameContainer,
+    LoadingYourQuestOverlayComponent,
+  ],
   template: `
     @if (warning()) {
     <app-overlay>
@@ -15,15 +21,15 @@ import { GameState } from '../model/load-game-state-response.model';
         <app-info-message [infoMessageDetails]="warningDetails()" />
       </div>
     </app-overlay>
-    } @else if (!loadedGame()) {
-    <app-overlay>
-      <h1 class="loading-text translateUp" slot="slot">Loading your quest</h1>
-    </app-overlay>
+    } @else if (isInitialGameStateLoading()) {
+    <app-loading-your-quest-overlay-component />
+    } @else {
+    <app-game-container />
     }
   `,
 })
 export class GamePageComponent {
-  readonly loadedGame = input.required<GameState | undefined>();
+  readonly isInitialGameStateLoading = input.required<boolean>();
   readonly warning = input.required<string | undefined>();
 
   protected readonly warningDetails = computed<InfoMessageDetail>(() => ({
