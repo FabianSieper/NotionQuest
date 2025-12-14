@@ -27,18 +27,15 @@ export class GameContainer implements OnDestroy {
   private canvas?: ElementRef<HTMLCanvasElement>;
 
   private readonly startAnimationLoopEffect = effect(() => {
-    const game = this.gameService.game();
-    const canvas = this.canvas;
-
-    if (game && canvas) {
-      this.ctx = canvas.nativeElement.getContext('2d') ?? undefined;
+    if (this.gameService.isGameDefined() && this.canvas) {
+      this.ctx = this.canvas.nativeElement.getContext('2d') ?? undefined;
       this.logger.info('Starting animation loop');
       this.startAnimationLoop();
     } else {
       this.logger.warn(
-        `Not starint animation loop because either game or canvas is not defined. Game: ${JSON.stringify(
-          game
-        )}, canvas: ${JSON.stringify(canvas)}`
+        `Not starting animation loop because either game or canvas is not defined. Game defined: ${JSON.stringify(
+          this.gameService.isGameDefined()
+        )}, canvas: ${JSON.stringify(this.canvas)}`
       );
     }
   });

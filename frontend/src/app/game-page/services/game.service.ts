@@ -10,6 +10,7 @@ export class GameService {
 
   private readonly _game = signal<Game | undefined>(undefined);
   readonly game = computed(() => this._game());
+  readonly isGameDefined = computed(() => !!this._game());
 
   async setGameState(gameState: GameState) {
     this._game.set(await mapToGame(gameState));
@@ -19,6 +20,36 @@ export class GameService {
     if (!ctx) return;
     this.clearDrawingBoard(ctx);
     this.drawGame(ctx);
+    this.animateGame();
+  }
+
+  private animateGame() {
+    this.animatePlayer();
+
+    // TODO: animate enemies
+
+    // TODO: animate playing board?
+  }
+
+  private animatePlayer() {
+    const game = this._game();
+
+    if (!game) {
+      this.logger.warn('Cannot animate player, as game is undefined');
+      return;
+    }
+
+    const player: GameElement = game.player;
+    if (!player) {
+      this.logger.warn('Cannot animate player, as player is undefined');
+      return;
+    }
+
+    // Move from left to right and back within a sprite row
+    player.spriteDetails.nextAnimationCol =
+      (player.spriteDetails.nextAnimationCol + 1) % player.spriteDetails.amountCols;
+
+    this._game.set({ ...game, player });
   }
 
   private drawGame(ctx: CanvasRenderingContext2D) {
