@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, effect, inject, Signal, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -5,11 +6,12 @@ import { NGXLogger } from 'ngx-logger';
 import { map } from 'rxjs';
 import { GameState } from '../model/load-game-state-response.model';
 import { BackendService } from '../services/backend.service';
+import { GamePageComponent } from './game-page.component';
 
 @Component({
   selector: 'app-game-page-container',
-  imports: [],
-  template: ``,
+  imports: [GamePageComponent],
+  template: ` <app-game-page-component [loadedGame]="loadedGame()" [warning]="warning()" />`,
 })
 export class GamePageContainer {
   private readonly logger = inject(NGXLogger);
@@ -17,7 +19,8 @@ export class GamePageContainer {
   private readonly backendService = inject(BackendService);
 
   private readonly isGameLoading = signal(false);
-  private readonly loadedGame = signal<GameState | undefined>(undefined);
+  protected readonly loadedGame = signal<GameState | undefined>(undefined);
+  protected readonly warning = signal<string | undefined>(undefined);
 
   private readonly gameId: Signal<string | undefined> = toSignal(
     this.route.paramMap.pipe(map((map) => map.get('gameId') ?? undefined))
@@ -39,9 +42,11 @@ export class GamePageContainer {
       this.loadedGame.set(loadedGame);
       this.logger.info(`Successfully loaded game with ${gameId}`);
     } catch (error) {
-      if (error instanceof Error) {
-        if (error.message.includes('404')) {
+      if (error instanceof HttpErrorResponse) {
+        // TODO: remov
+        if (error.status == 404) {
           this.logger.error(`Game with gameId ${gameId} was not found.`);
+          this.warning.set(`Game with gameId \n'${gameId}'\nwas not found.`);
         }
       } else {
         this.logger.error(

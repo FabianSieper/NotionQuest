@@ -1,7 +1,7 @@
 import { Component, input, model, output } from '@angular/core';
-import { InfoMessageComponent } from './components/info-message/info-message.component';
+import { InfoMessageComponent } from '../components/info-message/info-message.component';
+import { OverlayComponent } from '../components/overlay/overlay.component';
 import { InfoMessageDetail } from './model/info-message.model';
-import { OverlayComponent } from './components/overlay/overlay.component';
 
 @Component({
   selector: 'app-landing-page-component',

@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { InfoMessageDetail } from '../../model/info-message.model';
+import { InfoMessageDetail } from '../../landing-page/model/info-message.model';
 
 @Component({
   selector: 'app-info-message',
