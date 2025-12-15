@@ -1,8 +1,8 @@
-import { Component, input, model, output } from '@angular/core';
+import { Component, ElementRef, input, model, output, ViewChild } from '@angular/core';
 import { InfoMessageComponent } from '../components/info-message/info-message.component';
+import { LoadingYourQuestOverlayComponent } from '../components/loading-your-quest-overlay/loading-your-quest-overlay.component';
 import { OverlayComponent } from '../components/overlay/overlay.component';
 import { InfoMessageDetail } from './model/info-message.model';
-import { LoadingYourQuestOverlayComponent } from '../components/loading-your-quest-overlay/loading-your-quest-overlay.component';
 
 @Component({
   selector: 'app-landing-page-component',
@@ -22,7 +22,7 @@ import { LoadingYourQuestOverlayComponent } from '../components/loading-your-que
             [value]="notionUrl()"
             (input)="onNotionUrlInput($event)"
           />
-          <button type="button" (click)="submitQuest.emit()" class="pixel-button"></button>
+          <button type="button" (click)="submitQuest.emit()" class="nes-btn is-primary">Go!</button>
         </div>
       </div>
       @if (infoMessageDetails(); as details) {
@@ -36,15 +36,37 @@ import { LoadingYourQuestOverlayComponent } from '../components/loading-your-que
       <h1 class="translateUp" slot="slot">{{ 'Loaded with Success!' }}</h1>
     </app-overlay>
     }
+
+    <dialog #duplicateDialog class="nes-dialog is-dark">
+      <form method="dialog">
+        <p class="title">Attention!</p>
+        <p>The to be laoded game was already loaded in the past</p>
+        <p>Do you want do you want to do?</p>
+        <menu class="dialog-menu">
+          <button class="nes-btn">Cancel</button>
+          <button class="nes-btn" (click)="overwriteGame.emit()">Overwrite</button>
+          <button class="nes-btn is-primary" (click)="loadGame.emit()">Load</button>
+        </menu>
+      </form>
+    </dialog>
   `,
   styleUrl: './landing-page.component.scss',
 })
 export class LandingPageComponent {
   readonly isLoading = input.required<boolean>();
   readonly loadedSuccessfully = input.required<boolean>();
-  readonly notionUrl = model.required<string>();
   readonly infoMessageDetails = input<InfoMessageDetail | undefined>(undefined);
+  readonly notionUrl = model.required<string>();
   readonly submitQuest = output<void>();
+  readonly overwriteGame = output<void>();
+  readonly loadGame = output<void>();
+
+  @ViewChild('duplicateDialog')
+  private duplicateDialog?: ElementRef<HTMLDialogElement>;
+
+  get dialog(): HTMLDialogElement | undefined {
+    return this.duplicateDialog?.nativeElement;
+  }
 
   protected onNotionUrlInput(event: Event): void {
     const value = (event.target as HTMLInputElement | null)?.value ?? '';

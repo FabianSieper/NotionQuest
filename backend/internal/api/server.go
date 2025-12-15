@@ -74,8 +74,10 @@ func (s *Server) LoadGameStateFromNotionHandler(w http.ResponseWriter, r *http.R
 
 	_, ok := s.Cache.Get(responseBody.PageId)
 
+	shouldOverwrite := r.URL.Query().Get("overwrite") == "true"
+
 	// Still continue and overwrite if user sent an corresponding parameter = true
-	if ok && !requestBody.Overwrite {
+	if ok && !requestBody.Overwrite && !shouldOverwrite {
 		http.Error(w, fmt.Sprintf("Game with page ID %s already exists in cache", responseBody.PageId), http.StatusConflict)
 		return
 	} else if ok {

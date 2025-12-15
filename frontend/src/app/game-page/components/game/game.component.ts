@@ -8,6 +8,7 @@ import { Component, ElementRef, input, ViewChild } from '@angular/core';
       <canvas #playfield [width]="canvasWidth()" [height]="canvasHeight()"></canvas>
     </section>
   `,
+  styleUrl: './game.component.scss',
 })
 export class GameComponent {
   readonly canvasWidth = input(640);

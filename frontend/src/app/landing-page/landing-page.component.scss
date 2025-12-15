@@ -27,13 +27,10 @@
     align-items: center;
 }
 
-.pixel-button {
-    background-image: url('/assets/enter-button.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    width: 99.5px;
-    height: 51px;
+.dialog-menu {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
 .pixel-button:active {

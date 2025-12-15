@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { GameState } from '../model/load-game-state-response.model';
 import { LoadGameStateFromNotionRequest } from '../model/load-game-state-from-notion-request.model';
 import { LoadGameStateFromNotionResponse } from '../model/load-game-state-from-notion-response.model';
+import { GameState } from '../model/load-game-state-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class BackendService {
@@ -11,10 +11,18 @@ export class BackendService {
 
   private httpClient = inject(HttpClient);
 
-  loadGameStateFromNotion(notionUrl: string): Promise<LoadGameStateFromNotionResponse> {
+  loadGameStateFromNotion(
+    notionUrl: string,
+    overwrite: boolean
+  ): Promise<LoadGameStateFromNotionResponse> {
     const body: LoadGameStateFromNotionRequest = { notionUrl };
+    const params = new HttpParams().set('overwrite', overwrite ? 'true' : 'false');
     return firstValueFrom(
-      this.httpClient.post<LoadGameStateFromNotionResponse>(this.getLoadGameStateFromNotionUrl(), body)
+      this.httpClient.post<LoadGameStateFromNotionResponse>(
+        this.getLoadGameStateFromNotionUrl(),
+        body,
+        { params }
+      )
     );
   }
 

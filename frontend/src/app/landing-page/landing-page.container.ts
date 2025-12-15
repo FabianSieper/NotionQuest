@@ -1,7 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
-import { LoadGameStateFromNotionResponse } from '../model/load-game-state-from-notion-response.model';
 import { BackendService } from '../services/backend.service';
 import { LandingPageComponent } from './landing-page.component';
 import { Criticality, InfoMessageDetail } from './model/info-message.model';
@@ -16,6 +15,8 @@ import { Criticality, InfoMessageDetail } from './model/info-message.model';
       [loadedSuccessfully]="loadedSuccessfully()"
       [infoMessageDetails]="infoMessageDetails()"
       (submitQuest)="handleEnterClick()"
+      (loadGame)="loadExistingGame()"
+      (overwriteGame)="requestLoadingInitialPlayingBoard(true)"
     />
   `,
 })
@@ -32,6 +33,11 @@ export class LandingPageContainer {
   protected readonly isLoading = signal<boolean>(false);
   protected readonly loadedSuccessfully = signal<boolean>(false);
   protected readonly infoMessageDetails = signal<InfoMessageDetail | undefined>(undefined);
+
+  private lastDuplicateNotionPageId: string | undefined = undefined;
+
+  @ViewChild(LandingPageComponent)
+  private landingPageComponent?: LandingPageComponent;
 
   protected async handleEnterClick() {
     this.infoMessageDetails.set(undefined);
@@ -54,16 +60,31 @@ export class LandingPageContainer {
     await this.requestLoadingInitialPlayingBoard();
   }
 
-  private async requestLoadingInitialPlayingBoard() {
+  protected loadExistingGame() {
+    const existingGameId = this.lastDuplicateNotionPageId;
+
+    if (!existingGameId) {
+      this.logger.error('Not able to load existing ame, as the existing game id is undefined');
+      return;
+    }
+
+    this.logger.info('Loading existing game');
+    this.forwardUserToGamePage(existingGameId);
+  }
+
+  protected async requestLoadingInitialPlayingBoard(overwrite = false) {
     try {
       this.isLoading.set(true);
 
       this.logger.info('Sending request to load initial playing board...');
-      const response = await this.backendService.loadGameStateFromNotion(this.notionUrl());
+      const response = await this.backendService.loadGameStateFromNotion(
+        this.notionUrl(),
+        overwrite
+      );
 
       this.logger.info('Successfully loaded initial playing board. Received Response: ', response);
       this.loadedSuccessfully.set(true);
-      this.forwardUserToGamePage(response);
+      this.forwardUserToGamePage(response.pageId, 2500);
     } catch (error) {
       this.handleError(error as Error);
     } finally {
@@ -71,12 +92,10 @@ export class LandingPageContainer {
     }
   }
 
-  private forwardUserToGamePage(loadNotionGameResponse: LoadGameStateFromNotionResponse) {
+  private forwardUserToGamePage(gameId: string, timeout = 0) {
     setTimeout(() => {
-      if (this.loadedSuccessfully()) {
-        this.router.navigate(['/game', loadNotionGameResponse.pageId]);
-      }
-    }, 2500);
+      this.router.navigate(['/game', gameId]);
+    }, timeout);
   }
 
   private handleError(error: Error) {
@@ -84,19 +103,23 @@ export class LandingPageContainer {
 
     // HTTP 409 indicates that there is already a game for the provided Notion page
     if (error.message.includes('409')) {
-      this.setDuplicateGameInfo();
+      this.landingPageComponent?.dialog?.showModal();
+      this.lastDuplicateNotionPageId = this.extractNotionPageId(this.notionUrl());
     } else {
       this.setErrorRequestInfo();
     }
   }
 
-  private setDuplicateGameInfo() {
-    this.infoMessageDetails.set({
-      ...this.getBaseInfoMessageDetails(),
-      message:
-        'A Quest for the provided Notion page was already loaded in the past. Please provide a different Notion URL.',
-      criticality: Criticality.WARNING,
-    });
+  private extractNotionPageId(url: string): string | undefined {
+    if (!url) return undefined;
+    try {
+      const parsed = new URL(url);
+      const slug = parsed.pathname.split('/').filter(Boolean).pop();
+      if (!slug) return undefined;
+      return slug.split('?')[0];
+    } catch {
+      return undefined;
+    }
   }
 
   private setErrorRequestInfo() {
