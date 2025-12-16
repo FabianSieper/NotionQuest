@@ -97,6 +97,7 @@ export class LandingPageContainer {
 
   private handleError(error: Error) {
     this.logger.warn('Error loading initial playing board:', error);
+    this.landingPageComponent?.loadingDialog?.dialog?.close();
 
     // HTTP 409 indicates that there is already a game for the provided Notion page
     if (error.message.includes('409')) {
