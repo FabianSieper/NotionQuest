@@ -11,7 +11,6 @@ import { Criticality, InfoMessageDetail } from './model/info-message.model';
   template: `
     <app-landing-page-component
       [(notionUrl)]="notionUrl"
-      [isLoading]="isLoading()"
       [loadedSuccessfully]="loadedSuccessfully()"
       [infoMessageDetails]="infoMessageDetails()"
       (submitQuest)="handleEnterClick()"
@@ -30,7 +29,6 @@ export class LandingPageContainer {
     'https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link'
   );
 
-  protected readonly isLoading = signal<boolean>(false);
   protected readonly loadedSuccessfully = signal<boolean>(false);
   protected readonly infoMessageDetails = signal<InfoMessageDetail | undefined>(undefined);
 
@@ -74,7 +72,7 @@ export class LandingPageContainer {
 
   protected async requestLoadingInitialPlayingBoard(overwrite = false) {
     try {
-      this.isLoading.set(true);
+      this.landingPageComponent?.loadingDialog?.dialog?.showModal();
 
       this.logger.info('Sending request to load initial playing board...');
       const response = await this.backendService.loadGameStateFromNotion(
@@ -88,7 +86,7 @@ export class LandingPageContainer {
     } catch (error) {
       this.handleError(error as Error);
     } finally {
-      this.isLoading.set(false);
+      this.landingPageComponent?.loadingDialog?.dialog?.requestClose();
     }
   }
 

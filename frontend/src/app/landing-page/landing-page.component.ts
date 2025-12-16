@@ -1,8 +1,8 @@
 import { Component, input, model, output, ViewChild } from '@angular/core';
 import { InfoMessageComponent } from '../components/info-message/info-message.component';
-import { LoadingYourQuestOverlayComponent } from '../components/loading-your-quest-overlay/loading-your-quest-overlay.component';
 import { OverlayComponent } from '../components/overlay/overlay.component';
 import { DuplicateDialogComponent } from './components/duplicate-dialog/duplicate-dialog.component';
+import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 import { InfoMessageDetail } from './model/info-message.model';
 
 @Component({
@@ -10,8 +10,8 @@ import { InfoMessageDetail } from './model/info-message.model';
   imports: [
     InfoMessageComponent,
     OverlayComponent,
-    LoadingYourQuestOverlayComponent,
     DuplicateDialogComponent,
+    LoadingDialogComponent,
   ],
   template: `
     <section class="nes-container is-rounded landing-shell is-dark">
@@ -36,10 +36,9 @@ import { InfoMessageDetail } from './model/info-message.model';
       }
     </section>
 
-    <!-- TODO: also use dialogs for these -->
-    @if (isLoading()) {
-    <app-loading-your-quest-overlay-component [translateY]="140" />
-    } @else if (loadedSuccessfully()) {
+    <app-loading-dialog-component #loadingDialog />
+    @if (loadedSuccessfully()) {
+    <!-- TODO: also use dialogs for this -->
     <app-overlay>
       <h1 class="translateUp" slot="slot">{{ 'Loaded with Success!' }}</h1>
     </app-overlay>
@@ -54,7 +53,6 @@ import { InfoMessageDetail } from './model/info-message.model';
   styleUrl: './landing-page.component.scss',
 })
 export class LandingPageComponent {
-  readonly isLoading = input.required<boolean>();
   readonly loadedSuccessfully = input.required<boolean>();
   readonly infoMessageDetails = input<InfoMessageDetail | undefined>(undefined);
   readonly notionUrl = model.required<string>();
@@ -67,6 +65,13 @@ export class LandingPageComponent {
 
   get duplicateDialog(): DuplicateDialogComponent | undefined {
     return this.dupDialog;
+  }
+
+  @ViewChild(LoadingDialogComponent)
+  private loaDialog?: LoadingDialogComponent;
+
+  get loadingDialog(): LoadingDialogComponent | undefined {
+    return this.loaDialog;
   }
 
   protected onNotionUrlInput(event: Event): void {
