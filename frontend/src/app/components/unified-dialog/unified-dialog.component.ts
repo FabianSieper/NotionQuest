@@ -1,4 +1,4 @@
-import { Component, ElementRef, output, ViewChild } from '@angular/core';
+import { Component, ElementRef, input, output, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-unified-dialog-component',
@@ -6,13 +6,22 @@ import { Component, ElementRef, output, ViewChild } from '@angular/core';
   template: `
     <dialog #loadingDialog class="nes-dialog is-dark">
       <form method="dialog">
-        <ng-content></ng-content>
+        <div class="dialog-content">
+          <ng-content></ng-content>
+        </div>
+        @if (addOkButtonForClosing()) {
+        <div class="dialog-actions">
+          <button class="nes-btn" type="submit">Ok</button>
+        </div>
+        }
       </form>
     </dialog>
   `,
   styleUrl: './unified-dialog.component.scss',
 })
 export class UnifiedDialogComponent {
+  readonly addOkButtonForClosing = input<boolean>(false);
+
   readonly overwriteGame = output<void>();
   readonly loadGame = output<void>();
 

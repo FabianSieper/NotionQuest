@@ -1,9 +1,9 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
+import { DialogType } from '../game-page/game-page.component';
 import { BackendService } from '../services/backend.service';
 import { LandingPageComponent } from './landing-page.component';
-import { Criticality, InfoMessageDetail } from './model/info-message.model';
 
 @Component({
   selector: 'app-landing-page-container',
@@ -11,8 +11,7 @@ import { Criticality, InfoMessageDetail } from './model/info-message.model';
   template: `
     <app-landing-page-component
       [(notionUrl)]="notionUrl"
-      [loadedSuccessfully]="loadedSuccessfully()"
-      [infoMessageDetails]="infoMessageDetails()"
+      [displayDialogType]="displayDialogType()"
       (submitQuest)="handleEnterClick()"
       (loadGame)="loadExistingGame()"
       (overwriteGame)="requestLoadingInitialPlayingBoard(true)"
@@ -29,30 +28,25 @@ export class LandingPageContainer {
     'https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link'
   );
 
-  protected readonly loadedSuccessfully = signal<boolean>(false);
-  protected readonly infoMessageDetails = signal<InfoMessageDetail | undefined>(undefined);
+  protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
 
   private lastDuplicateNotionPageId: string | undefined = undefined;
 
-  @ViewChild(LandingPageComponent)
-  private landingPageComponent?: LandingPageComponent;
-
   protected async handleEnterClick() {
-    this.infoMessageDetails.set(undefined);
-    this.loadedSuccessfully.set(false);
+    this.displayDialogType.set(undefined);
     this.lastDuplicateNotionPageId = undefined;
 
     this.logger.info('Notion URL submitted:', this.notionUrl());
 
     if (this.isNotionUrlEmpty()) {
       this.logger.warn('Provided Notion URL is empty:', this.notionUrl());
-      this.setNotionUrlEmptyInfo();
+      this.displayDialogType.set(DialogType.NOTION_URL_EMPTY);
       return;
     }
 
     if (!this.isNotionUrlValid()) {
       this.logger.warn('Provided Notion URL is not valid:', this.notionUrl());
-      this.setInvalidUrlInfo();
+      this.displayDialogType.set(DialogType.INVALID_NOTION_URL);
       return;
     }
 
@@ -68,12 +62,12 @@ export class LandingPageContainer {
     }
 
     this.logger.info('Loading existing game');
-    this.forwardUserToGamePage(existingGameId);
+    this.router.navigate(['/game', existingGameId]);
   }
 
   protected async requestLoadingInitialPlayingBoard(overwrite = false) {
     try {
-      this.landingPageComponent?.loadingDialog?.dialog?.showModal();
+      this.displayDialogType.set(DialogType.LOADING);
 
       this.logger.info('Sending request to load initial playing board...');
       const response = await this.backendService.loadGameStateFromNotion(
@@ -82,31 +76,29 @@ export class LandingPageContainer {
       );
 
       this.logger.info('Successfully loaded initial playing board. Received Response: ', response);
-      this.loadedSuccessfully.set(true);
-      this.forwardUserToGamePage(response.pageId, 2500);
+      this.displayDialogType.set(DialogType.SUCCESS);
+
+      setTimeout(() => {
+        this.displayDialogType.set(undefined);
+        this.router.navigate(['/game', response.pageId]);
+      });
     } catch (error) {
       this.handleError(error as Error);
     }
   }
 
-  private forwardUserToGamePage(gameId: string, timeout = 0) {
-    setTimeout(() => {
-      this.router.navigate(['/game', gameId]);
-    }, timeout);
-  }
-
   private handleError(error: Error) {
     this.logger.warn('Error loading initial playing board:', error);
-    this.landingPageComponent?.loadingDialog?.dialog?.close();
 
     // HTTP 409 indicates that there is already a game for the provided Notion page
     if (error.message.includes('409')) {
-      this.landingPageComponent?.duplicateDialog?.dialog?.showModal();
+      // TODO: do use displayDialogType instead
+      this.displayDialogType.set(DialogType.DUPLICATE_FOUND);
       // Store notion URL for later
       this.lastDuplicateNotionPageId = this.extractNotionPageId(this.notionUrl());
     } else {
       // TODO: display error via thingy
-      this.setErrorRequestInfo();
+      this.displayDialogType.set(DialogType.BACKEND_ERROR);
     }
   }
 
@@ -122,43 +114,11 @@ export class LandingPageContainer {
     }
   }
 
-  private setErrorRequestInfo() {
-    this.infoMessageDetails.set({
-      ...this.getBaseInfoMessageDetails(),
-      message: 'An error occurred while loading your quest. Did you enter a valid Notion URL?',
-      criticality: Criticality.ERROR,
-    });
-  }
-
   private isNotionUrlEmpty(): boolean {
     return this.notionUrl().trim().length === 0;
   }
 
-  private setNotionUrlEmptyInfo() {
-    this.infoMessageDetails.set({
-      ...this.getBaseInfoMessageDetails(),
-      message: 'The Notion URL cannot be empty.',
-      criticality: Criticality.ERROR,
-    });
-  }
-
   private isNotionUrlValid(): boolean {
     return this.notionUrl().includes('.notion.site/');
-  }
-
-  private setInvalidUrlInfo() {
-    this.infoMessageDetails.set({
-      ...this.getBaseInfoMessageDetails(),
-      message: 'The provided URL does not seem to be a valid public Notion page URL.',
-      criticality: Criticality.ERROR,
-    });
-  }
-
-  private getBaseInfoMessageDetails(): InfoMessageDetail {
-    return {
-      header: 'Watch out!',
-      message: '',
-      criticality: Criticality.WARNING,
-    };
   }
 }

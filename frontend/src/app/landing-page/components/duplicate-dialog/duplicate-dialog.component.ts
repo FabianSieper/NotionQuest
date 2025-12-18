@@ -1,5 +1,5 @@
 import { Component, output, ViewChild } from '@angular/core';
-import { UnifiedDialogComponent } from '../unified-dialog/unified-dialog.component';
+import { UnifiedDialogComponent } from '../../../components/unified-dialog/unified-dialog.component';
 
 @Component({
   selector: 'app-duplicate-dialog-component',
