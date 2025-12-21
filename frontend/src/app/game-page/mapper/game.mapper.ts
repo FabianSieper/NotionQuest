@@ -11,11 +11,14 @@ export async function mapToGame(gameState: GameState): Promise<Game> {
 }
 
 async function extractTiles(gameState: GameState): Promise<(GameElement | undefined)[][]> {
-  const floorVisuals = await mapFloorVisuals(gameState);
-  return mapToTiles(gameState, floorVisuals);
+  return await mapToTiles(gameState);
 }
 
-function mapToTiles(gameState: GameState, floorVisuals: Visuals): (GameElement | undefined)[][] {
+async function mapToTiles(gameState: GameState): Promise<(GameElement | undefined)[][]> {
+  const floorVisuals = await mapFloorVisuals();
+  const mountainsVisuals = await mapMountainsVisuals();
+  const castleVisuals = await mapDoorVisuals();
+
   const tiles = Array.from({ length: gameState.grid.length }, () =>
     Array(gameState.grid[0].length).fill(undefined)
   );
@@ -26,6 +29,14 @@ function mapToTiles(gameState: GameState, floorVisuals: Visuals): (GameElement |
       switch (gameState.grid[row][col]) {
         case TileType.FLOOR: {
           tiles[row][col] = createTileGameElement(floorVisuals, col, row);
+          break;
+        }
+        case TileType.WALL: {
+          tiles[row][col] = createTileGameElement(mountainsVisuals, col, row);
+          break;
+        }
+        case TileType.GOAL: {
+          tiles[row][col] = createTileGameElement(castleVisuals, col, row);
           break;
         }
         case TileType.UNKNOWN: {
@@ -48,8 +59,32 @@ function createTileGameElement(visuals: Visuals, x: number, y: number): GameElem
   };
 }
 
-async function mapFloorVisuals(gameState: GameState): Promise<Visuals> {
+async function mapDoorVisuals(): Promise<Visuals> {
+  const floorImage = await loadAssetAsImage('assets/sprites/door.png');
+  return createSpriteDetails(
+    floorImage,
+    1, // cols
+    1, // rows
+    // Start at animation frame col 0 and row 4
+    0,
+    0
+  );
+}
+
+async function mapFloorVisuals(): Promise<Visuals> {
   const floorImage = await loadAssetAsImage('assets/sprites/floor.png');
+  return createSpriteDetails(
+    floorImage,
+    1, // cols
+    1, // rows
+    // Start at animation frame col 0 and row 4
+    0,
+    0
+  );
+}
+
+async function mapMountainsVisuals(): Promise<Visuals> {
+  const floorImage = await loadAssetAsImage('assets/sprites/mountains.png');
   return createSpriteDetails(
     floorImage,
     1, // cols

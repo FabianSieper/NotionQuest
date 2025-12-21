@@ -8,8 +8,6 @@ import (
 	"github.com/FabianSieper/NotionQuest/internal/models"
 )
 
-var playGroundSize = 20
-
 // ParseScenario interprets the textual board pulled from Notion, for example:
 // ####################
 // #S.................#
@@ -159,10 +157,6 @@ func getAmountRowsAndCols(rows []string) (int, int, error) {
 
 	if amountRows != amountCols {
 		return 0, 0, fmt.Errorf("the board is not square, but should be: %d rows vs %d columns", amountRows, amountCols)
-	}
-
-	if playGroundSize != amountRows {
-		return 0, 0, fmt.Errorf("the board size is incorrect: got %d but expected %d", amountRows, playGroundSize)
 	}
 
 	return amountRows, amountCols, nil
