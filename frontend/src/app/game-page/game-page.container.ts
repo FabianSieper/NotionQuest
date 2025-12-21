@@ -4,8 +4,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { map } from 'rxjs';
-import { BackendService } from '../services/backend.service';
 import { DialogType } from '../model/dialog-type.model';
+import { BackendService } from '../services/backend.service';
 import { GamePageComponent } from './game-page.component';
 import { GameService } from './services/game.service';
 

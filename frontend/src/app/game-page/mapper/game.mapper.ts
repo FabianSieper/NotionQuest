@@ -21,15 +21,15 @@ function mapToTiles(gameState: GameState, floorVisuals: Visuals): (GameElement |
   );
 
   // For each tile, compute the corresponding Game Elements based on the tile type
-  for (let col = 0; col < tiles.length; col++) {
-    for (let row = 0; row < tiles[0].length; row++) {
-      switch (gameState.grid[col][row]) {
+  for (let row = 0; row < tiles.length; row++) {
+    for (let col = 0; col < tiles[0].length; col++) {
+      switch (gameState.grid[row][col]) {
         case TileType.FLOOR: {
-          tiles[col][row] = createTileGameElement(floorVisuals, col, row);
+          tiles[row][col] = createTileGameElement(floorVisuals, col, row);
           break;
         }
         case TileType.UNKNOWN: {
-          tiles[col][row] = undefined;
+          tiles[row][col] = undefined;
           break;
         }
       }
