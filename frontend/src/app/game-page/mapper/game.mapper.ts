@@ -1,4 +1,4 @@
-import { Enemy, GameState } from '../../model/load-game-state-response.model';
+import { Enemy, GameState, TileType } from '../../model/load-game-state-response.model';
 import { Game, GameElement, PlayingBoard, Visuals } from '../model/game.model';
 
 var playingBoardPixelsX = 1000;
@@ -8,8 +8,59 @@ export async function mapToGame(gameState: GameState): Promise<Game> {
   return {
     player: await extractPlayer(gameState),
     enemies: await extractEnemies(gameState),
+    tiles: await extractTiles(gameState),
     playingBoard: extractPlayingBoard(gameState),
   };
+}
+
+async function extractTiles(gameState: GameState): Promise<(GameElement | undefined)[][]> {
+  const floorVisuals = await mapFloorVisuals(gameState);
+  return mapToTiles(gameState, floorVisuals);
+}
+
+function mapToTiles(gameState: GameState, floorVisuals: Visuals): (GameElement | undefined)[][] {
+  const tiles = Array.from({ length: gameState.grid.length }, () =>
+    Array(gameState.grid[0].length).fill(undefined)
+  );
+
+  // For each tile, compute the corresponding Game Elements based on the tile type
+  for (let col = 0; col < tiles.length; col++) {
+    for (let row = 0; row < tiles[0].length; row++) {
+      switch (gameState.grid[col][row]) {
+        case TileType.FLOOR: {
+          tiles[col][row] = createTileGameElement(floorVisuals, col, row);
+          break;
+        }
+        case TileType.UNKNOWN: {
+          tiles[col][row] = undefined;
+          break;
+        }
+      }
+    }
+  }
+  return tiles;
+}
+
+function createTileGameElement(visuals: Visuals, x: number, y: number): GameElement {
+  return {
+    visuals,
+    position: {
+      x,
+      y,
+    },
+  };
+}
+
+async function mapFloorVisuals(gameState: GameState): Promise<Visuals> {
+  const floorImage = await loadAssetAsImage('assets/sprites/floor.png');
+  return createSpriteDetails(
+    floorImage,
+    1, // cols
+    1, // rows
+    // Start at animation frame col 0 and row 4
+    0,
+    0
+  );
 }
 
 function extractPlayingBoard(gameState: GameState): PlayingBoard {

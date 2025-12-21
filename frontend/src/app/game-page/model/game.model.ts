@@ -1,6 +1,7 @@
 export interface Game {
   player: GameElement;
   enemies: GameElement[];
+  tiles: (GameElement | undefined)[][]; // THe ground of the playing Board; first dimension is x, second y, from top to bottom
   playingBoard: PlayingBoard;
 }
 

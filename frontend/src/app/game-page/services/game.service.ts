@@ -48,10 +48,26 @@ export class GameService {
   }
 
   private drawGame(ctx: CanvasRenderingContext2D) {
-    // TODO: draw board
+    this.drawTiles(ctx, this._game()?.tiles, this._game()?.playingBoard);
     this.drawEnemies(ctx, this._game()?.enemies, this._game()?.playingBoard);
     // Draw player
     this.drawGameElement(ctx, this._game()?.player, this._game()?.playingBoard);
+  }
+
+  private drawTiles(
+    ctx: CanvasRenderingContext2D,
+    tiles?: (GameElement | undefined)[][],
+    playingBoard?: PlayingBoard
+  ) {
+    tiles?.forEach((tileCol) => this.drawTileCol(ctx, tileCol, playingBoard));
+  }
+
+  private drawTileCol(
+    ctx: CanvasRenderingContext2D,
+    tiles?: (GameElement | undefined)[],
+    playingBoard?: PlayingBoard
+  ) {
+    tiles?.filter(Boolean).forEach((tile) => this.drawGameElement(ctx, tile, playingBoard));
   }
 
   private drawEnemies(
