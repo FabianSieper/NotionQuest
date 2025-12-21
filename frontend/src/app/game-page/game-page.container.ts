@@ -12,7 +12,6 @@ import { GameService } from './services/game.service';
   selector: 'app-game-page-container',
   imports: [GamePageComponent],
   template: ` <app-game-page-component
-    [isInitialGameStateLoading]="isInitialGameStateLoading()"
     [displayDialogType]="displayDialogType()"
     (resetActiveDialogType)="this.displayDialogType.set(undefined)"
   />`,
@@ -23,7 +22,6 @@ export class GamePageContainer {
   private readonly backendService = inject(BackendService);
   private readonly gameService = inject(GameService);
 
-  protected readonly isInitialGameStateLoading = signal(false);
   protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
 
   private readonly gameId: Signal<string | undefined> = toSignal(
@@ -46,27 +44,34 @@ export class GamePageContainer {
       await this.gameService.setGameState(loadedGame);
       this.logger.info(`Successfully loaded game with ${gameId}`);
 
-      // Only set to undefined if success, else error states are set
+      // Only set to undefined if success, else error states are set via error handling
+      // TODO: uncomment
       this.displayDialogType.set(undefined);
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
-        if (error.status == 404) {
-          this.logger.error(`Game with gameId ${gameId} was not found.`);
-          this.displayDialogType.set(DialogType.NOT_FOUND);
-        } else {
-          this.logger.error(
-            `Error laoding game with gameId ${gameId}. Received error: ${JSON.stringify(error)}`
-          );
-          this.displayDialogType.set(DialogType.BACKEND_ERROR);
-        }
+        this.handleHttpErrorResponse(error, gameId);
       } else {
-        this.logger.error(
-          `Failed to load game with game id ${gameId}. Received error: ${JSON.stringify(error)}`
-        );
-        this.displayDialogType.set(DialogType.BACKEND_ERROR);
+        this.handleGenericError(error, gameId);
       }
     }
-
-    this.isInitialGameStateLoading.set(false);
   });
+
+  private handleGenericError(error: unknown, gameId: string) {
+    this.logger.error(
+      `Failed to load game with game id ${gameId}. Received error: ${JSON.stringify(error)}`
+    );
+    this.displayDialogType.set(DialogType.BACKEND_ERROR);
+  }
+
+  private handleHttpErrorResponse(error: HttpErrorResponse, gameId: string) {
+    if (error.status == 404) {
+      this.logger.error(`Game with gameId ${gameId} was not found.`);
+      this.displayDialogType.set(DialogType.NOT_FOUND);
+    } else {
+      this.logger.error(
+        `Error laoding game with gameId ${gameId}. Received error: ${JSON.stringify(error)}`
+      );
+      this.displayDialogType.set(DialogType.BACKEND_ERROR);
+    }
+  }
 }

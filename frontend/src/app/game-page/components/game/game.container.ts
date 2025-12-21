@@ -5,7 +5,7 @@ import {
   inject,
   OnDestroy,
   signal,
-  ViewChild,
+  viewChild,
   WritableSignal,
 } from '@angular/core';
 import { NGXLogger } from 'ngx-logger';
@@ -34,11 +34,10 @@ export class GameContainer implements OnDestroy, AfterViewInit {
   // The context for rendering on the canvas
   private readonly ctx: WritableSignal<CanvasRenderingContext2D | undefined> = signal(undefined);
 
-  @ViewChild(GameComponent)
-  private gameComponent?: GameComponent;
+  private readonly gameComponent = viewChild(GameComponent);
 
   ngAfterViewInit(): void {
-    const gameComponent = this.gameComponent;
+    const gameComponent = this.gameComponent();
     if (!gameComponent) return;
 
     this.ctx.set(gameComponent.playfield?.getContext('2d') ?? undefined);

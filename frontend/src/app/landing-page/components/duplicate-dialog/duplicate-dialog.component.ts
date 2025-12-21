@@ -1,4 +1,4 @@
-import { Component, output, ViewChild } from '@angular/core';
+import { Component, output, viewChild } from '@angular/core';
 import { UnifiedDialogComponent } from '../../../components/unified-dialog/unified-dialog.component';
 
 @Component({
@@ -26,10 +26,9 @@ export class DuplicateDialogComponent {
   readonly loadGame = output<void>();
   readonly resetActiveDialogType = output();
 
-  @ViewChild(UnifiedDialogComponent)
-  private unifiedDialogComponent?: UnifiedDialogComponent;
+  private readonly unifiedDialogComponent = viewChild(UnifiedDialogComponent);
 
   get dialog(): HTMLDialogElement | undefined {
-    return this.unifiedDialogComponent?.dialog;
+    return this.unifiedDialogComponent()?.dialog;
   }
 }

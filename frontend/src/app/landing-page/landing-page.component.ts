@@ -1,4 +1,4 @@
-import { Component, input, model, output, ViewChild } from '@angular/core';
+import { Component, input, model, output, viewChild } from '@angular/core';
 import { InfoDialogComponent } from '../components/info-dialog/info-dialog.component';
 import { MessageDialogComponent } from '../components/message-dialog/message-dialog.component';
 import { DialogType } from '../game-page/game-page.component';
@@ -42,11 +42,10 @@ export class LandingPageComponent {
   readonly loadGame = output<void>();
   readonly resetActiveDialogType = output();
 
-  @ViewChild(MessageDialogComponent)
-  private _messageDialog?: MessageDialogComponent;
+  private readonly messageDialogRef = viewChild(MessageDialogComponent);
 
   get messageDialog(): MessageDialogComponent | undefined {
-    return this._messageDialog;
+    return this.messageDialogRef();
   }
 
   protected onNotionUrlInput(event: Event): void {

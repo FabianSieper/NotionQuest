@@ -1,6 +1,5 @@
-import { Component, input, output } from '@angular/core';
+import { Component, effect, input, output } from '@angular/core';
 import { InfoDialogComponent } from '../components/info-dialog/info-dialog.component';
-import { LoadingYourQuestOverlayComponent } from '../components/loading-your-quest-overlay/loading-your-quest-overlay.component';
 import { GameContainer } from './components/game/game.container';
 
 // TODO: move to own model file
@@ -17,17 +16,15 @@ export enum DialogType {
 @Component({
   selector: 'app-game-page-component',
   styleUrl: 'game-page.component.scss',
-  imports: [GameContainer, LoadingYourQuestOverlayComponent, InfoDialogComponent],
+  imports: [GameContainer, InfoDialogComponent],
   template: `
     <app-info-dialog-component
       [displayDialogType]="displayDialogType()"
       (resetActiveDialogType)="resetActiveDialogType.emit()"
     />
 
-    <!-- TODO: use dialog isntead of overlay -->
-    @if (isInitialGameStateLoading()) {
-    <app-loading-your-quest-overlay-component />
-    } @else {
+    <!-- Display playing field as soon as no dialog status is set, like loading or errors -->
+    @if (!displayDialogType()) {
     <div class="playing-board">
       <app-game-container />
     </div>
@@ -35,7 +32,8 @@ export enum DialogType {
   `,
 })
 export class GamePageComponent {
-  readonly isInitialGameStateLoading = input.required<boolean>();
   readonly displayDialogType = input.required<DialogType | undefined>();
   readonly resetActiveDialogType = output();
+
+  private removeMe = effect(() => console.log(`Current dialog type: ${this.displayDialogType()}`));
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, input, output, ViewChild } from '@angular/core';
+import { Component, ElementRef, input, output, viewChild } from '@angular/core';
 
 @Component({
   selector: 'app-unified-dialog-component',
@@ -26,10 +26,9 @@ export class UnifiedDialogComponent {
   readonly overwriteGame = output<void>();
   readonly loadGame = output<void>();
 
-  @ViewChild('loadingDialog')
-  private loadingDialog?: ElementRef<HTMLDialogElement>;
+  private readonly loadingDialogRef = viewChild<ElementRef<HTMLDialogElement>>('loadingDialog');
 
   get dialog(): HTMLDialogElement | undefined {
-    return this.loadingDialog?.nativeElement;
+    return this.loadingDialogRef()?.nativeElement;
   }
 }

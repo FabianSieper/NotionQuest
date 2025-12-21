@@ -1,4 +1,4 @@
-import { Component, effect, input, OnInit, output, ViewChild } from '@angular/core';
+import { Component, effect, input, OnInit, output, viewChild } from '@angular/core';
 import { DialogType } from '../../game-page/game-page.component';
 import { DuplicateDialogComponent } from '../../landing-page/components/duplicate-dialog/duplicate-dialog.component';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
@@ -37,19 +37,19 @@ export class InfoDialogComponent implements OnInit {
   readonly overwriteGame = output();
   readonly resetActiveDialogType = output();
 
-  @ViewChild(MessageDialogComponent)
-  private messageDialogComponent?: MessageDialogComponent;
+  private readonly messageDialogComponent = viewChild(MessageDialogComponent);
 
-  @ViewChild(DuplicateDialogComponent)
-  private duplicateDialogComponent?: DuplicateDialogComponent;
+  private readonly duplicateDialogComponent = viewChild(DuplicateDialogComponent);
 
   private dialogMessageBasedOnType = new Map<DialogType, MessageDialogInformation | undefined>([
     [
       DialogType.NOT_FOUND,
       {
-        paragraphs: ['The game ID used does not seem to exist.'],
+        paragraphs: [
+          'The game ID used does not seem to exist. Please return to the landing page of the game.',
+        ],
         header: 'Upsi Daisy',
-        addOkButtonForClosing: true,
+        addOkButtonForClosing: false,
       },
     ],
     [
@@ -100,14 +100,14 @@ export class InfoDialogComponent implements OnInit {
     // TODO: remove
     console.log(`Updated dialogType to ${this.displayDialogType()}`);
     if (!this.displayDialogType()) {
-      this.messageDialogComponent?.dialog?.close();
+      this.messageDialogComponent()?.dialog?.close();
       return;
     }
 
     if (this.displayDialogType() == DialogType.DUPLICATE_FOUND) {
-      this.duplicateDialogComponent?.dialog?.showModal();
+      this.duplicateDialogComponent()?.dialog?.showModal();
     } else {
-      this.messageDialogComponent?.dialog?.showModal();
+      this.messageDialogComponent()?.dialog?.showModal();
     }
   });
 

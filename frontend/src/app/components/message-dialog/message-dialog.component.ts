@@ -1,4 +1,4 @@
-import { Component, effect, input, output, signal, ViewChild } from '@angular/core';
+import { Component, effect, input, output, signal, viewChild } from '@angular/core';
 import { interval } from 'rxjs';
 import { UnifiedDialogComponent } from '../unified-dialog/unified-dialog.component';
 
@@ -32,33 +32,29 @@ export class MessageDialogComponent {
   readonly switchParagraphsAfterMs = input<number>();
   readonly resetActiveDialogType = output();
 
-  @ViewChild(UnifiedDialogComponent)
-  private _dialog?: UnifiedDialogComponent;
+  private readonly dialogComponent = viewChild(UnifiedDialogComponent);
 
   get dialog(): HTMLDialogElement | undefined {
-    return this._dialog?.dialog;
+    return this.dialogComponent()?.dialog;
   }
 
   // Describes which paragraph is currently displayed if switchParagraphsAfterMs is defined.
   protected currentDialogIndex = signal(0);
 
-  private rotateParagraphEffect = effect(
-    (onCleanup) => {
-      const ms = this.switchParagraphsAfterMs();
-      const paragraphs = this.paragraphs();
+  private rotateParagraphEffect = effect((onCleanup) => {
+    const ms = this.switchParagraphsAfterMs();
+    const paragraphs = this.paragraphs();
 
-      this.currentDialogIndex.set(0);
+    this.currentDialogIndex.set(0);
 
-      if (!ms || !paragraphs || paragraphs.length === 0) {
-        return;
-      }
+    if (!ms || !paragraphs || paragraphs.length === 0) {
+      return;
+    }
 
-      const subscription = interval(ms).subscribe(() => {
-        this.currentDialogIndex.set((this.currentDialogIndex() + 1) % paragraphs.length);
-      });
+    const subscription = interval(ms).subscribe(() => {
+      this.currentDialogIndex.set((this.currentDialogIndex() + 1) % paragraphs.length);
+    });
 
-      onCleanup(() => subscription.unsubscribe());
-    },
-    { allowSignalWrites: true }
-  );
+    onCleanup(() => subscription.unsubscribe());
+  });
 }
