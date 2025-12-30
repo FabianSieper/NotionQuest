@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NGXLogger } from 'ngx-logger';
 import { GameState } from '../../model/load-game-state-response.model';
+import { Animator } from '../core-game/animator';
 import { mapToGame } from '../mapper/game.mapper';
 import { Game, GameElement, PlayingBoard, Rect, Visuals } from '../model/game.model';
 
@@ -28,30 +29,6 @@ export class GameService {
     this.triggerOnUserInput();
   }
 
-  private animateGame() {
-    this.animatePlayer();
-    this.animateEnemies();
-
-    // TODO: animate playing board?
-  }
-
-  private animatePlayer() {
-    const game = this.verifyGameIsDefined();
-    this.animateGameElement(game.player);
-  }
-
-  private animateEnemies() {
-    const game = this.verifyGameIsDefined();
-    game.enemies.forEach((enemy) => this.animateGameElement(enemy));
-  }
-
-  private animateGameElement(gameElement: GameElement) {
-    // Move from left to right and back within a sprite row
-    gameElement.visuals.animationDetails.nextCol =
-      (gameElement.visuals.animationDetails.nextCol + 1) %
-      gameElement.visuals.spriteDetails.amountCols;
-  }
-
   private triggerOnUserInput() {
     if (!this.shouldUpdateUserInput(Date.now())) return;
 
@@ -77,7 +54,7 @@ export class GameService {
     this.drawGameElement(ctx, this._game()?.player, this._game()?.playingBoard);
 
     // Update sprites if required for the next drawing time
-    this.animateGame();
+    Animator.animateGame(this._game());
   }
 
   private shouldUpdateDrawing(timestamp: number): boolean {
