@@ -56,3 +56,9 @@ export interface GameElement {
   visuals: Visuals;
   position: Position;
 }
+
+export enum GameStatus {
+  ONGOING = 'ONGOING',
+  WON = 'WON',
+  LOST = 'LOST',
+}

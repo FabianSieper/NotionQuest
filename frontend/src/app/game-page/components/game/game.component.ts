@@ -1,4 +1,5 @@
-import { Component, ElementRef, input, viewChild } from '@angular/core';
+import { Component, ElementRef, input, output, viewChild } from '@angular/core';
+import { GameStatus } from '../../model/game.model';
 
 @Component({
   selector: 'app-game-component',
@@ -6,8 +7,12 @@ import { Component, ElementRef, input, viewChild } from '@angular/core';
   template: ` <canvas #playfield [width]="canvasWidth()" [height]="canvasHeight()"></canvas> `,
 })
 export class GameComponent {
-  readonly canvasWidth = input(640);
-  readonly canvasHeight = input(640);
+  readonly gameStatus = input.required<GameStatus>();
+  readonly backToMenu = output<void>();
+  readonly restartGame = output<void>();
+
+  protected readonly canvasWidth = input(640);
+  protected readonly canvasHeight = input(640);
 
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('playfield');
 

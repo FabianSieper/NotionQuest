@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { map } from 'rxjs';
 import { DialogType } from '../model/dialog-type.model';
-import { BackendService } from '../services/backend.service';
 import { GamePageComponent } from './game-page.component';
 import { GameService } from './services/game.service';
 
@@ -18,7 +17,8 @@ import { GameService } from './services/game.service';
       (resetActiveDialogType)="this.displayDialogType.set(undefined)"
       (backClicked)="displayDialogType.set(DialogType.ARE_YOU_SURE)"
       (noClicked)="displayDialogType.set(undefined)"
-      (yesClicked)="router.navigate(['/'])"
+      (backToMenu)="router.navigate(['/'])"
+      (reloadGame)="loadGame(gameId())"
     />
   `,
 })
@@ -26,18 +26,20 @@ export class GamePageContainer {
   readonly router = inject(Router);
   private readonly logger = inject(NGXLogger);
   private readonly route = inject(ActivatedRoute);
-  private readonly backendService = inject(BackendService);
   private readonly gameService = inject(GameService);
 
   protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
 
-  private readonly gameId: Signal<string | undefined> = toSignal(
+  protected readonly gameId: Signal<string | undefined> = toSignal(
     this.route.paramMap.pipe(map((map) => map.get('gameId') ?? undefined))
   );
 
   loadGameOnGameIdChange = effect(async () => {
     const gameId = this.gameId();
+    this.loadGame(gameId);
+  });
 
+  protected loadGame(gameId: string | undefined) {
     if (!gameId) {
       this.logger.warn('Game id is undefined; Not loading game.');
       return;
@@ -46,11 +48,7 @@ export class GamePageContainer {
     this.displayDialogType.set(DialogType.LOADING);
 
     try {
-      this.logger.info(`Loading game with game id ${gameId}`);
-      const loadedGame = await this.backendService.loadGameStateFromCache(gameId);
-      await this.gameService.setGameState(loadedGame);
-      this.logger.info(`Successfully loaded game with ${gameId}`);
-
+      this.gameService.loadGameState(gameId);
       // Only set to undefined if success, else error states are set via error handling
       this.displayDialogType.set(undefined);
     } catch (error) {
@@ -60,7 +58,7 @@ export class GamePageContainer {
         this.handleGenericError(error, gameId);
       }
     }
-  });
+  }
 
   private handleGenericError(error: unknown, gameId: string) {
     this.logger.error(
