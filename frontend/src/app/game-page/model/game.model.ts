@@ -1,7 +1,11 @@
+import { Enemy } from '../core-game/entities/enemy';
+import { Player } from '../core-game/entities/player';
+import { Tile } from '../core-game/entities/tile';
+
 export interface Game {
-  player: GameElement;
-  enemies: GameElement[];
-  tiles: (GameElement | undefined)[][]; // THe ground of the playing Board; first dimension is x, second y, from top to bottom
+  player: Player;
+  enemies: Enemy[];
+  tiles: Tile[][]; // The ground of the playing Board; first dimension is x, second y, from top to bottom
   playingBoard: PlayingBoard;
 }
 

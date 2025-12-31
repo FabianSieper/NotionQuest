@@ -16,8 +16,27 @@ export class KeyInputService {
     this.lastKeyPressed = event.key;
   }
 
+  /**
+   * Reacting on user input should be instant. This also includes moving the player character.
+   */
   public reactOnUserInput(game: WritableSignal<Game | undefined>) {
     if (!this.lastKeyPressed) return;
-    // TODO
+
+    switch (this.lastKeyPressed) {
+      case 'ArrowUp':
+        // Move player up
+        break;
+      case 'ArrowDown':
+        // Move player down
+        break;
+      case 'ArrowLeft':
+        // Move player left
+        break;
+      case 'ArrowRight':
+        // Move player right
+        break;
+      default:
+        break;
+    }
   }
 }

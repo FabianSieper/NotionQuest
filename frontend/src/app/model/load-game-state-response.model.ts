@@ -10,7 +10,7 @@ export enum TileType {
   UNKNOWN = 'UNKNOWN',
 }
 
-export interface Player {
+export interface PlayerDto {
   position: Position;
 }
 
@@ -18,7 +18,7 @@ export enum EnemyType {
   MONSTER = 'MONSTER',
 }
 
-export interface Enemy {
+export interface EnemyDto {
   id: string;
   position: Position;
   type: EnemyType;
@@ -28,6 +28,6 @@ export interface GameState {
   width: number;
   height: number;
   grid: TileType[][];
-  player: Player;
-  enemies: Enemy[];
+  player: PlayerDto;
+  enemies: EnemyDto[];
 }

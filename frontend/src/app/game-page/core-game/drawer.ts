@@ -1,4 +1,5 @@
-import { Game, GameElement, PlayingBoard, Rect, Visuals } from '../model/game.model';
+import { Game, PlayingBoard, Position, Rect, Visuals } from '../model/game.model';
+import { Entity } from './entities/entity';
 
 export class Drawer {
   private lastTimeGameDrawed = 0;
@@ -7,11 +8,13 @@ export class Drawer {
   public drawGame(ctx: CanvasRenderingContext2D, game: Game | undefined) {
     if (!this.shouldUpdateDrawing(Date.now())) return;
 
+    if (!game) return;
+
     this.clearDrawingBoard(ctx);
-    this.drawTiles(ctx, game?.tiles, game?.playingBoard);
-    this.drawEnemies(ctx, game?.enemies, game?.playingBoard);
+    this.drawTiles(ctx, game.tiles, game.playingBoard);
+    this.drawEnemies(ctx, game.enemies, game.playingBoard);
     // Draw player
-    this.drawGameElement(ctx, game?.player, game?.playingBoard);
+    this.drawGameElement(ctx, game.player, game.playingBoard);
   }
 
   private shouldUpdateDrawing(timestamp: number): boolean {
@@ -23,60 +26,43 @@ export class Drawer {
     return false;
   }
 
-  private drawTiles(
-    ctx: CanvasRenderingContext2D,
-    tiles?: (GameElement | undefined)[][],
-    playingBoard?: PlayingBoard
-  ) {
+  private drawTiles(ctx: CanvasRenderingContext2D, tiles: Entity[][], playingBoard: PlayingBoard) {
     tiles?.forEach((tileCol) => this.drawTileCol(ctx, tileCol, playingBoard));
   }
 
-  private drawTileCol(
-    ctx: CanvasRenderingContext2D,
-    tiles?: (GameElement | undefined)[],
-    playingBoard?: PlayingBoard
-  ) {
+  private drawTileCol(ctx: CanvasRenderingContext2D, tiles: Entity[], playingBoard: PlayingBoard) {
     tiles?.filter(Boolean).forEach((tile) => this.drawGameElement(ctx, tile, playingBoard));
   }
 
   private drawEnemies(
     ctx: CanvasRenderingContext2D,
-    enemies?: GameElement[],
-    playingBoard?: PlayingBoard
+    enemies: Entity[],
+    playingBoard: PlayingBoard
   ) {
     enemies?.forEach((enemy) => this.drawGameElement(ctx, enemy, playingBoard));
   }
 
   private drawGameElement(
     ctx: CanvasRenderingContext2D,
-    gameElement?: GameElement,
-    playingBoard?: PlayingBoard
+    gameEntity: Entity,
+    playingBoard: PlayingBoard
   ) {
-    const visuals = gameElement?.visuals;
-
-    if (!visuals) {
-      throw new Error('Cannot draw game element because visuals are undefined');
-    }
-    
-    if (!playingBoard) {
-      throw new Error('Cannot draw game element because playing board is undefined');
-    }
+    const visuals = gameEntity.getVisuals();
 
     const source = this.calculateSpriteSection(visuals);
-    const target = this.calculateBoardTarget(ctx, gameElement, playingBoard);
+    const target = this.calculateBoardTarget(ctx, gameEntity.getPosition(), playingBoard);
 
     this.drawSprite(ctx, visuals.spriteDetails.image, source, target);
   }
 
-
   private calculateBoardTarget(
     ctx: CanvasRenderingContext2D,
-    gameElement: GameElement,
+    elementPosition: Position,
     playingBoard: PlayingBoard
   ): Rect {
     return {
-      x: (gameElement.position.x * ctx.canvas.width) / playingBoard.amountFieldsX,
-      y: (gameElement.position.y * ctx.canvas.height) / playingBoard.amountFieldsY,
+      x: (elementPosition.x * ctx.canvas.width) / playingBoard.amountFieldsX,
+      y: (elementPosition.y * ctx.canvas.height) / playingBoard.amountFieldsY,
       w: ctx.canvas.width / playingBoard.amountFieldsX,
       h: ctx.canvas.height / playingBoard.amountFieldsY,
     };
@@ -118,5 +104,4 @@ export class Drawer {
     ctx.fillStyle = '#333';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
-
 }

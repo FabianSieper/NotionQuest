@@ -1,5 +1,8 @@
-import { Enemy, GameState, TileType } from '../../model/load-game-state-response.model';
-import { Game, GameElement, PlayingBoard, Visuals } from '../model/game.model';
+import { EnemyDto, GameState, TileType } from '../../model/load-game-state-response.model';
+import { Enemy } from '../core-game/entities/enemy';
+import { Player } from '../core-game/entities/player';
+import { Tile } from '../core-game/entities/tile';
+import { Game, PlayingBoard, Visuals } from '../model/game.model';
 
 export async function mapToGame(gameState: GameState): Promise<Game> {
   return {
@@ -10,11 +13,11 @@ export async function mapToGame(gameState: GameState): Promise<Game> {
   };
 }
 
-async function extractTiles(gameState: GameState): Promise<(GameElement | undefined)[][]> {
+async function extractTiles(gameState: GameState): Promise<Tile[][]> {
   return await mapToTiles(gameState);
 }
 
-async function mapToTiles(gameState: GameState): Promise<(GameElement | undefined)[][]> {
+async function mapToTiles(gameState: GameState): Promise<Tile[][]> {
   const floorVisuals = await mapFloorVisuals();
   const mountainsVisuals = await mapMountainsVisuals();
   const castleVisuals = await mapCastleVisuals();
@@ -49,14 +52,14 @@ async function mapToTiles(gameState: GameState): Promise<(GameElement | undefine
   return tiles;
 }
 
-function createTileGameElement(visuals: Visuals, x: number, y: number): GameElement {
-  return {
+function createTileGameElement(visuals: Visuals, x: number, y: number): Tile {
+  return new Tile({
     visuals,
     position: {
       x,
       y,
     },
-  };
+  });
 }
 
 async function mapCastleVisuals(): Promise<Visuals> {
@@ -102,12 +105,12 @@ function extractPlayingBoard(gameState: GameState): PlayingBoard {
   };
 }
 
-async function extractEnemies(gameState: GameState): Promise<GameElement[]> {
+async function extractEnemies(gameState: GameState): Promise<Enemy[]> {
   const enemyImage = await loadAssetAsImage('assets/sprites/enemy.png');
-  return Promise.all(gameState.enemies.map((enemy) => mapEnemy(enemy, enemyImage)));
+  return gameState.enemies.map((enemy) => mapEnemy(enemy, enemyImage));
 }
 
-async function mapEnemy(enemy: Enemy, enemyImage: HTMLImageElement): Promise<GameElement> {
+function mapEnemy(enemy: EnemyDto, enemyImage: HTMLImageElement): Enemy {
   const spriteDetails: Visuals = createSpriteDetails(
     enemyImage,
     3, // cols
@@ -116,13 +119,13 @@ async function mapEnemy(enemy: Enemy, enemyImage: HTMLImageElement): Promise<Gam
     0,
     4
   );
-  return {
+  return new Enemy({
     visuals: spriteDetails,
     position: { ...enemy.position },
-  };
+  });
 }
 
-async function extractPlayer(gameState: GameState): Promise<GameElement> {
+async function extractPlayer(gameState: GameState): Promise<Player> {
   const playerImage = await loadAssetAsImage('assets/sprites/player.png');
   const spriteDetails = createSpriteDetails(
     playerImage,
@@ -132,10 +135,10 @@ async function extractPlayer(gameState: GameState): Promise<GameElement> {
     0,
     4
   );
-  return {
+  return new Player({
     visuals: spriteDetails,
     position: { x: gameState.player.position.x, y: gameState.player.position.y },
-  };
+  });
 }
 
 async function loadAssetAsImage(path: string) {
