@@ -9,4 +9,8 @@ export class Tile extends Entity {
   public isWalkable(): boolean {
     return this.tileType == TileType.FLOOR || this.tileType == TileType.GOAL;
   }
+
+  public isGoal(): boolean {
+    return this.tileType === TileType.GOAL;
+  }
 }

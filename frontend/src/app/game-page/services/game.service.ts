@@ -52,6 +52,8 @@ export class GameService {
   private checkOnGameStatus() {
     if (this._game()?.player.isTouchingEnemy(this._game()?.enemies || [])) {
       this._status.set(GameStatus.LOST);
+    } else if (this._game()?.player.isOnGoal(this._game())) {
+      this._status.set(GameStatus.WON);
     }
   }
 

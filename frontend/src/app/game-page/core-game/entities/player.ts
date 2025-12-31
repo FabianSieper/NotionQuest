@@ -1,4 +1,4 @@
-import { GameElement } from '../../model/game.model';
+import { Game, GameElement } from '../../model/game.model';
 import { Actor } from './Actor';
 import { Enemy } from './enemy';
 
@@ -16,6 +16,13 @@ export class Player extends Actor {
           this.isTouchingVertically(enemy)
       )
       .some(Boolean);
+  }
+
+  isOnGoal(game: Game | undefined): boolean {
+    if (!game) return false;
+    const tileBelowPlayer = game.tiles[game.player.getPosition().y][game.player.getPosition().x];
+
+    return tileBelowPlayer.isGoal();
   }
 
   private isTouchingVertically(enemy: Actor): boolean {

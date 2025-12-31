@@ -44,22 +44,34 @@ export class GameContainer implements OnDestroy, AfterViewInit {
 
   private readonly stopAnimationLoopEffect = effect(() => {
     if (GameStatus.LOST === this.gameService.status()) {
-      if (this.rafId) {
-        this.logger.info('Stopping animation loop because game was lost.');
+      if (!this.rafId) return;
+      this.logger.info('Stopping animation loop because game was lost.');
 
-        // Stop animatino/computation loop
-        cancelAnimationFrame(this.rafId);
-        this.rafId = undefined;
+      // Stop animatino/computation loop
+      cancelAnimationFrame(this.rafId);
+      this.rafId = undefined;
 
-        // Content of canvas should become grey
-        this.turnContentOfCanvasToGrey();
+      // Content of canvas should become grey
+      this.turnContentOfCanvasToGrey();
 
-        // Reset game state and related variables
-        this.gameService.reset();
+      // Reset game state and related variables
+      this.gameService.reset();
 
-        // Trigger display of lost dialog
-        this.gameLost.emit();
-      }
+      // Trigger display of lost dialog
+      this.gameLost.emit();
+    } else if (GameStatus.WON === this.gameService.status()) {
+      if (!this.rafId) return;
+      this.logger.info('Stopping animation loop because game was won.');
+
+      // Stop animatino/computation loop
+      cancelAnimationFrame(this.rafId);
+      this.rafId = undefined;
+
+      // Reset game state and related variables
+      this.gameService.reset();
+
+      // Trigger display of won dialog
+      this.gameWon.emit();
     }
   });
 
