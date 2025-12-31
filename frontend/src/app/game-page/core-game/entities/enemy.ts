@@ -1,28 +1,28 @@
 import { GameElement } from '../../model/game.model';
-import { Entity } from './entity';
+import { Actor } from './Actor';
 
-export class Enemy extends Entity {
+export class Enemy extends Actor {
   constructor(enemy: GameElement) {
     super(enemy);
   }
 
-  lookUp() {
+  protected lookUp() {
     this.gameElement.visuals.animationDetails.nextRow = 0;
   }
 
-  lookDown() {
+  protected lookDown() {
     this.gameElement.visuals.animationDetails.nextRow = 1;
   }
 
-  lookRight() {
+  protected lookRight() {
     this.gameElement.visuals.animationDetails.nextRow = 2;
   }
 
-  lookLeft() {
+  protected lookLeft() {
     this.gameElement.visuals.animationDetails.nextRow = 3;
   }
 
-  setIdleAnimation() {
+  protected setIdleAnimation() {
     this.gameElement.visuals.animationDetails.nextCol = 4;
   }
 }

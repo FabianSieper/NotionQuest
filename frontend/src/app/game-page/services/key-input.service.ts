@@ -22,26 +22,24 @@ export class KeyInputService {
   public reactOnUserInput(game: WritableSignal<Game | undefined>) {
     if (!this.lastKeyPressed || !game()) return;
 
-    // TODO: changes to character should be displayed directly
+    // TODO: user should not be able to move into walls
     switch (this.lastKeyPressed) {
       case 'ArrowUp':
-        // Move player up
-        game()?.player.lookUp();
+        game()?.player.moveUp();
         break;
       case 'ArrowDown':
-        // Move player down
-        game()?.player.lookDown();
+        game()?.player.moveDown();
         break;
       case 'ArrowLeft':
-        game()?.player.lookLeft();
-        // Move player left
+        game()?.player.moveLeft();
         break;
       case 'ArrowRight':
-        game()?.player.lookRight();
-        // Move player right
+        game()?.player.moveRight();
         break;
       default:
         break;
     }
+
+    this.lastKeyPressed = undefined;
   }
 }
