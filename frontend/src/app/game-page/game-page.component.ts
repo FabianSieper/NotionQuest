@@ -48,9 +48,7 @@ export class GamePageComponent {
   private readonly lostOrWonDialogComponent = viewChild(LostOrWonDialogComponent);
 
   protected displayLostOrWonDialog(won: boolean) {
-    setTimeout(() => {
-      this.gameWon.set(won);
-      this.lostOrWonDialogComponent()?.dialog?.showModal();
-    }, 2000);
+    this.gameWon.set(won);
+    this.lostOrWonDialogComponent()?.dialog?.showModal();
   }
 }

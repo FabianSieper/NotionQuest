@@ -42,11 +42,19 @@ export class GameService {
     if (!ctx || !this._game()) return;
 
     Animator.animateGame(this._game);
-    this.keyInputService.reactOnUserInput(this._game);
+
+    this.reactOnUserInput();
 
     this.drawGame(ctx);
 
     this.checkOnGameStatus();
+  }
+
+  private reactOnUserInput() {
+    // If the game is lost or won, no more user inputs should be registered
+    if (this._status() == GameStatus.ONGOING) {
+      this.keyInputService.reactOnUserInput(this._game);
+    }
   }
 
   private checkOnGameStatus() {

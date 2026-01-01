@@ -30,6 +30,10 @@ export class GameContainer implements OnDestroy, AfterViewInit {
   // The request Animation Frame Id to stop animating
   private rafId: number | undefined = undefined;
 
+  // The amount of time the loosing or wining playfield should be displayed until the user is prompted to
+  // replay or go back to menu
+  private winOrLooseDelayMs = 2000;
+
   // The context for rendering on the canvas
   private readonly ctx: WritableSignal<CanvasRenderingContext2D | undefined> = signal(undefined);
 
@@ -43,35 +47,40 @@ export class GameContainer implements OnDestroy, AfterViewInit {
   }
 
   private readonly stopAnimationLoopEffect = effect(() => {
-    if (GameStatus.LOST === this.gameService.status()) {
-      if (!this.rafId) return;
+    const rafId = this.rafId;
+    const status = this.gameService.status();
+    if (!rafId) return;
+
+    if (GameStatus.LOST === status) {
       this.logger.info('Stopping animation loop because game was lost.');
 
-      // Stop animatino/computation loop
-      cancelAnimationFrame(this.rafId);
-      this.rafId = undefined;
+      setTimeout(() => {
+        // Stop animation/computation loop
+        cancelAnimationFrame(rafId);
 
-      // Content of canvas should become grey
-      this.turnContentOfCanvasToGrey();
+        this.rafId = undefined;
 
-      // Reset game state and related variables
-      this.gameService.reset();
+        // Reset game state and related variables
+        this.gameService.reset();
 
-      // Trigger display of lost dialog
-      this.gameLost.emit();
-    } else if (GameStatus.WON === this.gameService.status()) {
-      if (!this.rafId) return;
+        // Trigger display of lost dialog
+        this.gameLost.emit();
+      }, this.winOrLooseDelayMs);
+    } else if (GameStatus.WON === status) {
       this.logger.info('Stopping animation loop because game was won.');
 
-      // Stop animatino/computation loop
-      cancelAnimationFrame(this.rafId);
-      this.rafId = undefined;
+      setTimeout(() => {
+        // Stop animatino/computation loop
+        cancelAnimationFrame(rafId);
 
-      // Reset game state and related variables
-      this.gameService.reset();
+        this.rafId = undefined;
 
-      // Trigger display of won dialog
-      this.gameWon.emit();
+        // Reset game state and related variables
+        this.gameService.reset();
+
+        // Trigger display of lost dialog
+        this.gameWon.emit();
+      }, this.winOrLooseDelayMs);
     }
   });
 
@@ -80,21 +89,6 @@ export class GameContainer implements OnDestroy, AfterViewInit {
     this.logger.info('Starting animation loop');
     this.startAnimationLoop();
   });
-
-  private turnContentOfCanvasToGrey() {
-    const ctx = this.ctx();
-    if (!ctx) return;
-
-    const img = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const data = img.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-      data[i] = data[i + 1] = data[i + 2] = gray; // keep alpha (data[i+3])
-    }
-
-    this.ctx()?.putImageData(img, 0, 0);
-  }
 
   private startAnimationLoop() {
     const loop = () => {
