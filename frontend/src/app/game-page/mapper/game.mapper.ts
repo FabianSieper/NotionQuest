@@ -115,9 +115,9 @@ function mapEnemy(enemy: EnemyDto, enemyImage: HTMLImageElement): Enemy {
     enemyImage,
     3, // cols
     5, // rows
-    // Start at animation frame col 0 and row 4
+    // Start at animation frame col 0 and row 1
     0,
-    4
+    1
   );
   return new Enemy({
     visuals: spriteDetails,
@@ -131,9 +131,9 @@ async function extractPlayer(gameState: GameState): Promise<Player> {
     playerImage,
     3, // cols
     5, // rows
-    // Start at animation frame col 0 and row 4
+    // Start at animation frame col 0 and row 1
     0,
-    4
+    1
   );
   return new Player({
     visuals: spriteDetails,

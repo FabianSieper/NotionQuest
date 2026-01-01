@@ -67,16 +67,10 @@ export class GameService {
 
     if (enemiesTouched.length > 0) {
       this._status.set(GameStatus.LOST);
-      // TODO: increase contrast of all sprites
-      const touchingActors = [...enemiesTouched, this.game()?.player].filter((actor) => !!actor);
-      this.increaseContrast(touchingActors);
+      // TODO: Let player do a dying animation
     } else if (this._game()?.player.isOnGoal(this._game())) {
       this._status.set(GameStatus.WON);
     }
-  }
-
-  private increaseContrast(entities: Entity[]) {
-    entities.forEach((entity) => entity.setIncreaseContrast(200));
   }
 
   private async drawGame(ctx: CanvasRenderingContext2D) {

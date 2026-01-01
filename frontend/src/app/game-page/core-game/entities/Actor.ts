@@ -72,6 +72,10 @@ export abstract class Actor extends Entity {
     return false;
   }
 
+  die() {
+    this.gameElement.visuals.animationDetails.nextRow = 4;
+  }
+
   protected lookUp() {
     this.gameElement.visuals.animationDetails.nextRow = 0;
   }
