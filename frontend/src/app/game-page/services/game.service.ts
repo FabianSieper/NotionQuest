@@ -29,7 +29,7 @@ export class GameService {
   private readonly loosingDelayMs = 3000;
 
   // The delay until the dying animation of the user is displayed
-  private readonly dyingDelayMs = 1000;
+  private readonly dyingDelayMs = 750;
 
   reset() {
     this._game.set(undefined);

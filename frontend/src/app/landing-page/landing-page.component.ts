@@ -7,6 +7,7 @@ import { DialogType } from '../model/dialog-type.model';
   selector: 'app-landing-page-component',
   imports: [InfoDialogComponent],
   template: `
+    @if (!displayDialogType()) {
     <section class="nes-container is-rounded landing-shell is-dark">
       <h1>Welcome to NotionQuest!</h1>
 
@@ -25,6 +26,7 @@ import { DialogType } from '../model/dialog-type.model';
         </div>
       </div>
     </section>
+    }
     <app-info-dialog-component
       [displayDialogType]="displayDialogType()"
       (resetActiveDialogType)="resetActiveDialogType.emit()"

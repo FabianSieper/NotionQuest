@@ -8,12 +8,14 @@ import { UnifiedDialogComponent } from '../../../components/unified-dialog/unifi
   template: `
     <app-unified-dialog-component>
       <div>
-        <p class="title">{{ getTitle() }}</p>
-        <p>{{ getBody() }}</p>
-        <menu class="dialog-menu">
-          <button class="nes-btn" (click)="backToMenuClicked.emit()">Back To Menu</button>
-          <button class="nes-btn is-primary" (click)="restartClicked.emit()">Restart</button>
-        </menu>
+        <div class="lost-or-won-content">
+          <h1 class="title">{{ getTitle() }}</h1>
+          <p>{{ getBody() }}</p>
+          <menu class="dialog-menu">
+            <button class="nes-btn" (click)="backToMenuClicked.emit()">Back To Menu</button>
+            <button class="nes-btn is-primary" (click)="restartClicked.emit()">Restart</button>
+          </menu>
+        </div>
       </div>
     </app-unified-dialog-component>
   `,
@@ -28,9 +30,7 @@ export class LostOrWonDialogComponent {
 
   protected readonly getTitle = computed(() => (this.gameWon() ? 'You won!' : 'You lost!'));
   protected readonly getBody = computed(() =>
-    this.gameWon()
-      ? 'You can be proud of yourself. How would you like to proceed?'
-      : 'All your fault! How would you like to proceed?'
+    this.gameWon() ? 'You can be proud of yourself.' : 'All your fault!'
   );
 
   private readonly unifiedDialogComponent = viewChild(UnifiedDialogComponent);

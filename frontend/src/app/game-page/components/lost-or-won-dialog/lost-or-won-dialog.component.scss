@@ -1,10 +1,12 @@
 .dialog-menu {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 10px;
     width: 100%;
+    margin: 0;
 }
 
-form {
-    min-width: 80vw;
+
+.lost-or-won-content {
+    text-align: center;
 }
