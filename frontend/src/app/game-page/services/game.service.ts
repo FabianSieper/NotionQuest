@@ -1,4 +1,4 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { NGXLogger } from 'ngx-logger';
 import { BackendService } from '../../services/backend.service';
 import { Animator } from '../core-game/animator';
@@ -31,6 +31,9 @@ export class GameService {
   // The delay until the dying animation of the user is displayed
   private readonly dyingDelayMs = 750;
 
+  // The delay until the enemies start dancing after the death animatino of the player
+  private readonly enemyDancingDelay = 1000;
+
   reset() {
     this._game.set(undefined);
     this._status.set(GameStatus.ONGOING);
@@ -56,14 +59,6 @@ export class GameService {
     this.checkOnGameStatus();
   }
 
-  private readonly transitionFromLoosingToLost = effect(() => {
-    if (this._status() === GameStatus.LOOSING) {
-      setTimeout(() => {
-        this._status.set(GameStatus.LOST);
-      }, this.loosingDelayMs);
-    }
-  });
-
   private reactOnUserInput() {
     // If the game is lost or won, no more user inputs should be registered
     if (this._status() == GameStatus.ONGOING) {
@@ -82,14 +77,27 @@ export class GameService {
       // Player is currently loosing, which might include a loosing animation, but game is not finally lost
       this._status.set(GameStatus.LOOSING);
 
-      setTimeout(() => {
-        this._game()?.player.die();
-      }, this.dyingDelayMs);
-
-      // TODO: Let player do a dying animation
+      this.passThroughLoosingAnimationPhases();
     } else if (this._game()?.player.isOnGoal(this._game())) {
       this._status.set(GameStatus.WON);
     }
+  }
+
+  private passThroughLoosingAnimationPhases() {
+    // After some time, display dying animation of player
+    setTimeout(() => {
+      this._game()?.player.die();
+
+      // After death, let enemies dance
+      setTimeout(() => {
+        this._game()?.enemies.forEach((enemy) => enemy.dance());
+
+        // Ater some time, set state LOST
+        setTimeout(() => {
+          this._status.set(GameStatus.LOST);
+        }, this.loosingDelayMs);
+      }, this.enemyDancingDelay);
+    }, this.dyingDelayMs);
   }
 
   private async drawGame(ctx: CanvasRenderingContext2D) {

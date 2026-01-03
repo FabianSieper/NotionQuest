@@ -114,7 +114,7 @@ function mapEnemy(enemy: EnemyDto, enemyImage: HTMLImageElement): Enemy {
   const spriteDetails: Visuals = createSpriteDetails(
     enemyImage,
     3, // cols
-    5, // rows
+    6, // rows
     // Start at animation frame col 0 and row 1
     0,
     1

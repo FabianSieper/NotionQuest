@@ -27,6 +27,11 @@ export class Enemy extends Actor {
     return true;
   }
 
+  dance() {
+    this.gameElement.visuals.animationDetails.nextCol = 0;
+    this.gameElement.visuals.animationDetails.nextRow = 5;
+  }
+
   private moveInDirection(direction: Direction, game: Game): boolean {
     switch (direction) {
       case Direction.UP:
