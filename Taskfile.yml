@@ -1,18 +1,35 @@
 version: '3'
 
+env: 
+  BACKEND_IMAGE_NAME: notionquestbackend
+
 tasks:
   default:
     desc: "List all available tasks"
     cmds:
       - task --list
 
-  run-backend: 
+  run-backend-dev: 
     cmds:
       - cd backend && go run main.go
 
   run-frontend:
     cmds:
       - cd frontend && ng serve
+
+  stop-backend:
+    cmds:
+      - docker stop $(docker ps -q --filter ancestor={{.BACKEND_IMAGE_NAME}}) || true
+      - docker rm "$(docker ps -aq --filter name={{.BACKEND_IMAGE_NAME}})" || true
+
+  build-backend:
+    cmds: 
+      - docker build -t {{.BACKEND_IMAGE_NAME}} ./backend
+
+  run-backend:  
+    deps: [build-backend, stop-backend]
+    cmds:
+    - docker run -d -p 8080:8080 --name notionBackend {{.BACKEND_IMAGE_NAME}}
 
   test-load-game-state-from-notion:
     desc: "Send a sample request to /loadGameStateFromNotion (backend must be running)"
