@@ -25,7 +25,7 @@ func GetPublicNotionPageContent(pageUrl string) (string, error) {
 
 	// 2. Create a Chrome context (headless browser in the background).
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
-		chromedp.Flag("headless", true), // Flip to false to watch the browser.
+		chromedp.Flag("headless", true), // Flip to false to watch the browser. Does not work in docker container.
 		chromedp.Flag("disable-gpu", true),
 		chromedp.Flag("no-sandbox", true),
 		chromedp.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"),

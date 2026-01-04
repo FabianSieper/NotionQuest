@@ -1,8 +1,12 @@
 version: '3'
 
 env: 
-  BACKEND_IMAGE_NAME: notionquestbackend
+  BACKEND_IMAGE_TAG: notionquestbackend
   BACKEND_CONTAINER_NAME: notionquestbackend
+  FRONTEND_IMAGE_TAG: notionquestfrontend
+  FRONTEND_CONTAINER_NAME: notionquestfrontend
+  FRONTEND_PORT: 4200
+  BACKEND_PORT: 8080
 
 tasks:
   default:
@@ -14,7 +18,7 @@ tasks:
     cmds:
       - cd backend && go run main.go
 
-  run-frontend:
+  run-frontend-dev:
     cmds:
       - cd frontend && ng serve
 
@@ -23,18 +27,38 @@ tasks:
       - docker stop {{.BACKEND_CONTAINER_NAME}} || true
       - docker rm {{.BACKEND_CONTAINER_NAME}} || true
 
+  stop-frontend:
+    cmds:
+      - docker stop {{.FRONTEND_CONTAINER_NAME}} || true
+      - docker rm {{.FRONTEND_CONTAINER_NAME}} || true
+
   build-backend:
     cmds: 
-      - docker build -t {{.BACKEND_IMAGE_NAME}} ./backend
+      - docker build -t {{.BACKEND_IMAGE_TAG}} ./backend
+
+  build-frontend:
+    cmds:
+      - docker build -t {{.FRONTEND_IMAGE_TAG}} ./frontend
 
   run-backend:  
     deps: [stop-backend, build-backend]
     cmds:
-    - docker run -d -p 8080:8080 --name {{.BACKEND_CONTAINER_NAME}} {{.BACKEND_IMAGE_NAME}}
+    - docker run -d -p {{.BACKEND_PORT}}:{{.BACKEND_PORT}} --name {{.BACKEND_CONTAINER_NAME}} {{.BACKEND_IMAGE_TAG}}
 
-  task stop-all:
+  run-frontend:
+    deps: [stop-frontend, build-frontend]
     cmds:
-      - task stop-backend
+      - docker run -d -p {{.FRONTEND_PORT}}:{{.FRONTEND_PORT}} --name {{.FRONTEND_CONTAINER_NAME}} {{.FRONTEND_IMAGE_TAG}}
+
+  run-all:
+    cmds:
+      - task: run-backend
+      - task: run-frontend
+
+  stop-all:
+    cmds:
+      - task: stop-backend
+      - task: stop-frontend
 
   test-load-game-state-from-notion:
     desc: "Send a sample request to /loadGameStateFromNotion (backend must be running)"
