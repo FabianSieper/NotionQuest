@@ -2,9 +2,9 @@ version: '3'
 
 env: 
   BACKEND_IMAGE_TAG: notionquestbackend
-  BACKEND_CONTAINER_NAME: notionquestbackend
+  BACKEND_CONTAINER_NAME: notionQuestBackend
   FRONTEND_IMAGE_TAG: notionquestfrontend
-  FRONTEND_CONTAINER_NAME: notionquestfrontend
+  FRONTEND_CONTAINER_NAME: notionQuestFrontend
   FRONTEND_PORT: 4200
   BACKEND_PORT: 8080
 
@@ -50,12 +50,12 @@ tasks:
     cmds:
       - docker run -d -p {{.FRONTEND_PORT}}:{{.FRONTEND_PORT}} --name {{.FRONTEND_CONTAINER_NAME}} {{.FRONTEND_IMAGE_TAG}}
 
-  run-all:
+  run:
     cmds:
       - task: run-backend
       - task: run-frontend
 
-  stop-all:
+  stop:
     cmds:
       - task: stop-backend
       - task: stop-frontend
