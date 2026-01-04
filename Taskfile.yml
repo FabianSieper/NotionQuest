@@ -2,6 +2,7 @@ version: '3'
 
 env: 
   BACKEND_IMAGE_NAME: notionquestbackend
+  BACKEND_CONTAINER_NAME: notionquestbackend
 
 tasks:
   default:
@@ -19,22 +20,26 @@ tasks:
 
   stop-backend:
     cmds:
-      - docker stop $(docker ps -q --filter ancestor={{.BACKEND_IMAGE_NAME}}) || true
-      - docker rm "$(docker ps -aq --filter name={{.BACKEND_IMAGE_NAME}})" || true
+      - docker stop {{.BACKEND_CONTAINER_NAME}} || true
+      - docker rm {{.BACKEND_CONTAINER_NAME}} || true
 
   build-backend:
     cmds: 
       - docker build -t {{.BACKEND_IMAGE_NAME}} ./backend
 
   run-backend:  
-    deps: [build-backend, stop-backend]
+    deps: [stop-backend, build-backend]
     cmds:
-    - docker run -d -p 8080:8080 --name notionBackend {{.BACKEND_IMAGE_NAME}}
+    - docker run -d -p 8080:8080 --name {{.BACKEND_CONTAINER_NAME}} {{.BACKEND_IMAGE_NAME}}
+
+  task stop-all:
+    cmds:
+      - task stop-backend
 
   test-load-game-state-from-notion:
     desc: "Send a sample request to /loadGameStateFromNotion (backend must be running)"
     cmds:
       - |
-        curl -X POST http://localhost:8080/api/loadGameStateFromNotion \
+        curl -vX POST http://localhost:8080/api/loadGameStateFromNotion \
           -H 'Content-Type: application/json' \
           --data '{"notionUrl":"https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1"}'
