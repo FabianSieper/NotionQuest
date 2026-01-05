@@ -41,17 +41,16 @@ export class GamePageContainer {
     this.loadGame(gameId);
   });
 
-  protected loadGame(gameId: string | undefined) {
+  protected async loadGame(gameId: string | undefined) {
     if (!gameId) {
       this.logger.warn('Game id is undefined; Not loading game.');
       return;
     }
 
-    // TODO: while loading, no loading circle or anything is displayed
     this.displayDialogType.set(DialogType.LOADING);
 
     try {
-      this.gameService.loadGameState(gameId);
+      await this.gameService.loadGameState(gameId);
       // Only set to undefined if success, else error states are set via error handling
       this.displayDialogType.set(undefined);
     } catch (error) {

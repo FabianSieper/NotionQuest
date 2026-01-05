@@ -114,26 +114,7 @@ export class InfoDialogComponent implements OnInit {
   ]);
 
   displayWarning = effect(() => {
-    if (!this.displayDialogType()) {
-      this.messageDialogComponent()?.dialog?.close();
-      this.duplicateDialogComponent()?.dialog?.close();
-      this.areYouSureDialogComponent()?.dialog?.close();
-      this.lostOrWonDialogComponent()?.dialog?.close();
-      return;
-    }
-
-    if (this.displayDialogType() == DialogType.DUPLICATE_FOUND) {
-      this.duplicateDialogComponent()?.dialog?.showModal();
-    } else if (this.displayDialogType() == DialogType.ARE_YOU_SURE) {
-      this.areYouSureDialogComponent()?.dialog?.showModal();
-    } else if (
-      this.displayDialogType() == DialogType.LOST ||
-      this.displayDialogType() == DialogType.WON
-    ) {
-      this.lostOrWonDialogComponent()?.dialog?.showModal();
-    } else {
-      this.messageDialogComponent()?.dialog?.showModal();
-    }
+    this.computeIfAndWhichDialogShouldBeShown(this.displayDialogType());
   });
 
   protected getTitleForDialogType() {
@@ -173,6 +154,29 @@ export class InfoDialogComponent implements OnInit {
           .map((type) => type.toString())
           .join(', ')}`
       );
+    }
+
+    // Initialy check if a dialog should be displayed; Required, as the effect only triggers on a change
+    this.computeIfAndWhichDialogShouldBeShown(this.displayDialogType());
+  }
+
+  private computeIfAndWhichDialogShouldBeShown(dialogType: DialogType | undefined) {
+    if (!dialogType) {
+      this.messageDialogComponent()?.dialog?.close();
+      this.duplicateDialogComponent()?.dialog?.close();
+      this.areYouSureDialogComponent()?.dialog?.close();
+      this.lostOrWonDialogComponent()?.dialog?.close();
+      return;
+    }
+
+    if (dialogType === DialogType.DUPLICATE_FOUND) {
+      this.duplicateDialogComponent()?.dialog?.showModal();
+    } else if (dialogType === DialogType.ARE_YOU_SURE) {
+      this.areYouSureDialogComponent()?.dialog?.showModal();
+    } else if (dialogType === DialogType.LOST || dialogType === DialogType.WON) {
+      this.lostOrWonDialogComponent()?.dialog?.showModal();
+    } else {
+      this.messageDialogComponent()?.dialog?.showModal();
     }
   }
 

@@ -1,8 +1,7 @@
-import { Component, input, output, signal, viewChild } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { InfoDialogComponent } from '../components/info-dialog/info-dialog.component';
 import { DialogType } from '../model/dialog-type.model';
 import { GameContainer } from './components/game/game.container';
-import { LostOrWonDialogComponent } from './components/lost-or-won-dialog/lost-or-won-dialog.component';
 
 @Component({
   selector: 'app-game-page-component',
