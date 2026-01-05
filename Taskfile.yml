@@ -22,40 +22,10 @@ tasks:
     cmds:
       - cd frontend && ng serve
 
-  stop-backend:
-    cmds:
-      - docker stop {{.BACKEND_CONTAINER_NAME}} || true
-      - docker rm {{.BACKEND_CONTAINER_NAME}} || true
-
-  stop-frontend:
-    cmds:
-      - docker stop {{.FRONTEND_CONTAINER_NAME}} || true
-      - docker rm {{.FRONTEND_CONTAINER_NAME}} || true
-
-  build-backend:
-    cmds: 
-      - docker image rm {{.BACKEND_IMAGE_TAG}} || true
-      - docker build -t {{.BACKEND_IMAGE_TAG}} ./backend
-
-  build-frontend:
-    cmds:
-      - docker image rm {{.FRONTEND_IMAGE_TAG}} || true
-      - docker build -t {{.FRONTEND_IMAGE_TAG}} ./frontend
-
-  run-backend:  
-    deps: [stop-backend, build-backend]
-    cmds:
-    - docker run -d -p {{.BACKEND_PORT}}:{{.BACKEND_PORT}} --name {{.BACKEND_CONTAINER_NAME}} {{.BACKEND_IMAGE_TAG}}
-
-  run-frontend:
-    deps: [stop-frontend, build-frontend]
-    cmds:
-      - docker run -d -p {{.FRONTEND_PORT}}:{{.FRONTEND_PORT}} --name {{.FRONTEND_CONTAINER_NAME}} {{.FRONTEND_IMAGE_TAG}}
-
   run:
-    deps: [stop, build-backend, build-frontend]
+    deps: [stop]
     cmds:
-      - docker-compose up -d
+      - docker-compose up -d --build
 
   stop:
     cmds:
