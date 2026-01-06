@@ -58,9 +58,10 @@ func addHandler(server *api.Server, router *chi.Mux) {
 func loadEnvFile() {
 
 	fmt.Printf("INFO - Loading .env file\n")
-	err := config.LoadDotEnv()
-	if err != nil {
-		log.Fatal("Failed to load .env file. Please verify the file exists at the root of the project with name '.env'")
+	if err := config.LoadDotEnv(); err != nil {
+		// For production, variables from .env are loaded into the runtime via docker-compose and no .env file has to be loaded
+		log.Printf("WARN - .env file not loaded: %v\n", err)
+		return
 	}
 	fmt.Printf("INFO - Successfully loaded .env file\n")
 

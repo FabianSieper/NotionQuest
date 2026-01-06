@@ -5,13 +5,13 @@ services:
       - "4200:4200"
     environment:
       - BACKEND_UPSTREAM=notion-quest-backend:8081
-    depends_on:
-      - notion-quest-backend
 
   notion-quest-backend:
     build: ./backend
     ports:
       - "8081:8081"
+    env_file:
+      - ./.env
 
   notion-quest-tunnel:
     image: cloudflare/cloudflared:latest

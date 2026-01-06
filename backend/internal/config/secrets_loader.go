@@ -1,7 +1,9 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -28,8 +30,20 @@ func GetNotionFeedbackDatabaseId() (error, string) {
 }
 
 func LoadDotEnv() error {
-	if err := godotenv.Load("../.env"); err != nil {
-		return err
+	candidates := []string{".env", "../.env"}
+	var loadErr error
+	for _, path := range candidates {
+		if err := godotenv.Overload(path); err != nil {
+			if errors.Is(err, fs.ErrNotExist) {
+				loadErr = err
+				continue
+			}
+			return err
+		}
+		return nil
+	}
+	if loadErr != nil {
+		return fmt.Errorf("no .env file found in %v", candidates)
 	}
 	return nil
 }

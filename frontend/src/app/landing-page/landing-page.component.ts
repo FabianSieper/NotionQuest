@@ -26,7 +26,7 @@ import { DialogType } from '../model/dialog-type.model';
         </div>
       </div>
     </section>
-    <button class="nes-btn feedback-button" (click)="openFeedbackPackge.emit()">Feedback</button>
+    <!-- <button class="nes-btn feedback-button" (click)="openFeedbackPackge.emit()">Feedback</button> -->
     }
     <app-info-dialog-component
       [displayDialogType]="displayDialogType()"
