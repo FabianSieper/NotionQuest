@@ -130,7 +130,7 @@ async function extractPlayer(gameState: GameState): Promise<Player> {
   const spriteDetails = createSpriteDetails(
     playerImage,
     3, // cols
-    5, // rows
+    6, // rows
     // Start at animation frame col 0 and row 1
     0,
     1

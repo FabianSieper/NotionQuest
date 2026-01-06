@@ -18,6 +18,11 @@ export class Player extends Actor {
     return tileBelowPlayer.isGoal();
   }
 
+  dance() {
+    this.gameElement.visuals.animationDetails.nextCol = 0;
+    this.gameElement.visuals.animationDetails.nextRow = 5;
+  }
+
   private isTouching(enemy: Actor): boolean {
     const diffX = this.getPositionDiffX(enemy);
     const diffY = this.getPositionDiffY(enemy);

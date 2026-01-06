@@ -26,13 +26,19 @@ export class GameService {
   private readonly drawer = new Drawer();
 
   // The delay until the user is prompted
-  private readonly loosingDelayMs = 3000;
+  private readonly lostOrWonDelay = 3000;
 
   // The delay until the dying animation of the user is displayed
   private readonly dyingDelayMs = 750;
 
   // The delay until the enemies start dancing after the death animatino of the player
   private readonly enemyDancingDelay = 1000;
+
+  // The delay until the the enemies die after the player reached the goal
+  private readonly enemiesDyingDelay = 500;
+
+  // The delay until the player starts dancing after the enemies died after the player reached the goal
+  private readonly playerDancingDelay = 1000;
 
   reset() {
     this._game.set(undefined);
@@ -74,13 +80,26 @@ export class GameService {
       this._game()?.player.getEnemiesTouching(this._game()?.enemies ?? []) ?? [];
 
     if (enemiesTouched.length > 0) {
-      // Player is currently loosing, which might include a loosing animation, but game is not finally lost
       this._status.set(GameStatus.LOOSING);
-
       this.passThroughLoosingAnimationPhases();
     } else if (this._game()?.player.isOnGoal(this._game())) {
-      this._status.set(GameStatus.WON);
+      this._status.set(GameStatus.WINNING);
+      this.passThroughWinningAnimationPhases();
     }
+  }
+
+  private passThroughWinningAnimationPhases() {
+    setTimeout(() => {
+      this._game()?.enemies.forEach((enemy) => enemy.die());
+
+      setTimeout(() => {
+        this._game()?.player.dance();
+
+        setTimeout(() => {
+          this._status.set(GameStatus.WON);
+        }, this.lostOrWonDelay);
+      }, this.playerDancingDelay);
+    }, this.enemiesDyingDelay);
   }
 
   private passThroughLoosingAnimationPhases() {
@@ -95,7 +114,7 @@ export class GameService {
         // Ater some time, set state LOST
         setTimeout(() => {
           this._status.set(GameStatus.LOST);
-        }, this.loosingDelayMs);
+        }, this.lostOrWonDelay);
       }, this.enemyDancingDelay);
     }, this.dyingDelayMs);
   }
