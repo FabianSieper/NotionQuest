@@ -21,6 +21,7 @@ func NewServer(cache *cache.GameCache) *Server {
 		Cache: cache,
 	}
 }
+
 func (s *Server) LoadGameStateFromCache(w http.ResponseWriter, r *http.Request) {
 
 	gameId := chi.URLParam(r, "gameId")

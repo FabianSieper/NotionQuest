@@ -1,13 +1,18 @@
 package notion
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/FabianSieper/NotionQuest/internal/config"
 	"github.com/chromedp/chromedp"
 )
 
@@ -81,4 +86,89 @@ func GetPublicNotionPageContent(pageUrl string) (string, error) {
 	}
 
 	return strings.Join(trimmedLines, "\n"), nil
+}
+
+func StoreFeedbackInNotion(name string, feedback string) {
+
+	trimmedFeedback := strings.TrimSpace(feedback)
+	if trimmedFeedback == "" {
+		fmt.Println("WARN - Feedback message is empty, nothing to send to Notion")
+		return
+	}
+
+	trimmedName := strings.TrimSpace(name)
+	if trimmedName == "" {
+		trimmedName = "Anonymous Adventurer"
+	}
+
+	err, token := config.GetNotionAccessKey()
+	if err != nil {
+		fmt.Printf("ERROR - Failed to load Notion integration secret: %v\n", err)
+		return
+	}
+
+	databaseID := os.Getenv("NOTION_FEEDBACK_DATABASE_ID")
+	if databaseID == "" {
+		fmt.Println("ERROR - NOTION_FEEDBACK_DATABASE_ID is not set")
+		return
+	}
+
+	requestBody := map[string]interface{}{
+		"parent": map[string]interface{}{
+			"type":        "database_id",
+			"database_id": databaseID,
+		},
+		"properties": map[string]interface{}{
+			"Name": map[string]interface{}{
+				"title": []map[string]interface{}{
+					{
+						"text": map[string]string{
+							"content": trimmedName,
+						},
+					},
+				},
+			},
+			"Feedback": map[string]interface{}{
+				"rich_text": []map[string]interface{}{
+					{
+						"text": map[string]string{
+							"content": trimmedFeedback,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	payload, err := json.Marshal(requestBody)
+	if err != nil {
+		fmt.Printf("ERROR - Failed to serialize Notion feedback payload: %v\n", err)
+		return
+	}
+
+	req, err := http.NewRequest(http.MethodPost, "https://api.notion.com/v1/pages", bytes.NewReader(payload))
+	if err != nil {
+		fmt.Printf("ERROR - Failed to create Notion feedback request: %v\n", err)
+		return
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Notion-Version", "2022-06-28")
+
+	client := &http.Client{Timeout: 15 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("ERROR - Failed to send feedback to Notion: %v\n", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= http.StatusBadRequest {
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Printf("ERROR - Notion rejected feedback (status %d): %s\n", resp.StatusCode, string(body))
+		return
+	}
+
+	fmt.Println("INFO - Feedback stored in Notion successfully")
 }
