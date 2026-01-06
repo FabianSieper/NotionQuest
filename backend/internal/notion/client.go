@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/FabianSieper/NotionQuest/internal/config"
+	"github.com/FabianSieper/NotionQuest/internal/notion/dto"
 	"github.com/chromedp/chromedp"
 )
 
@@ -88,12 +89,10 @@ func GetPublicNotionPageContent(pageUrl string) (string, error) {
 	return strings.Join(trimmedLines, "\n"), nil
 }
 
-func StoreFeedbackInNotion(name string, feedback string) {
-
+func SendFeedbackToNotion(name string, feedback string) error {
 	trimmedFeedback := strings.TrimSpace(feedback)
 	if trimmedFeedback == "" {
-		fmt.Println("WARN - Feedback message is empty, nothing to send to Notion")
-		return
+		return fmt.Errorf("feedback message is empty")
 	}
 
 	trimmedName := strings.TrimSpace(name)
@@ -103,37 +102,31 @@ func StoreFeedbackInNotion(name string, feedback string) {
 
 	err, token := config.GetNotionAccessKey()
 	if err != nil {
-		fmt.Printf("ERROR - Failed to load Notion integration secret: %v\n", err)
-		return
+		return fmt.Errorf("failed to load Notion integration secret: %w", err)
 	}
 
-	databaseID := os.Getenv("NOTION_FEEDBACK_DATABASE_ID")
-	if databaseID == "" {
-		fmt.Println("ERROR - NOTION_FEEDBACK_DATABASE_ID is not set")
-		return
+	err, databaseID := config.GetNotionFeedbackDatabaseId()
+	if err != nil {
+		return fmt.Errorf("could not load notion database feedback id: %w", err)
 	}
 
-	requestBody := map[string]interface{}{
-		"parent": map[string]interface{}{
-			"type":        "database_id",
-			"database_id": databaseID,
+	requestBody := dto.SendFeedbackToNotionRequest{
+		Parent: dto.NotionParent{
+			Type:       "database_id",
+			DatabaseID: databaseID,
 		},
-		"properties": map[string]interface{}{
-			"Name": map[string]interface{}{
-				"title": []map[string]interface{}{
+		Properties: dto.NotionFeedbackProperties{
+			Name: dto.NotionTitleProperty{
+				Title: []dto.NotionTextBlock{
 					{
-						"text": map[string]string{
-							"content": trimmedName,
-						},
+						Text: dto.NotionTextContent{Content: trimmedName},
 					},
 				},
 			},
-			"Feedback": map[string]interface{}{
-				"rich_text": []map[string]interface{}{
+			Feedback: dto.NotionRichTextProperty{
+				RichText: []dto.NotionTextBlock{
 					{
-						"text": map[string]string{
-							"content": trimmedFeedback,
-						},
+						Text: dto.NotionTextContent{Content: trimmedFeedback},
 					},
 				},
 			},
@@ -142,14 +135,12 @@ func StoreFeedbackInNotion(name string, feedback string) {
 
 	payload, err := json.Marshal(requestBody)
 	if err != nil {
-		fmt.Printf("ERROR - Failed to serialize Notion feedback payload: %v\n", err)
-		return
+		return fmt.Errorf("failed to serialize Notion feedback payload: %w", err)
 	}
 
 	req, err := http.NewRequest(http.MethodPost, "https://api.notion.com/v1/pages", bytes.NewReader(payload))
 	if err != nil {
-		fmt.Printf("ERROR - Failed to create Notion feedback request: %v\n", err)
-		return
+		return fmt.Errorf("failed to create Notion feedback request: %w", err)
 	}
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
@@ -159,16 +150,15 @@ func StoreFeedbackInNotion(name string, feedback string) {
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("ERROR - Failed to send feedback to Notion: %v\n", err)
-		return
+		return fmt.Errorf("failed to send feedback to Notion: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= http.StatusBadRequest {
 		body, _ := io.ReadAll(resp.Body)
-		fmt.Printf("ERROR - Notion rejected feedback (status %d): %s\n", resp.StatusCode, string(body))
-		return
+		return fmt.Errorf("Notion rejected feedback (status %d): %s", resp.StatusCode, string(body))
 	}
 
 	fmt.Println("INFO - Feedback stored in Notion successfully")
+	return nil
 }

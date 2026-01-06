@@ -7,7 +7,7 @@ import (
 
 	"github.com/FabianSieper/NotionQuest/internal/cache"
 	"github.com/FabianSieper/NotionQuest/internal/gameboard"
-	"github.com/FabianSieper/NotionQuest/internal/models"
+	"github.com/FabianSieper/NotionQuest/internal/models/request"
 	"github.com/FabianSieper/NotionQuest/internal/notion"
 	"github.com/go-chi/chi/v5"
 )
@@ -57,7 +57,7 @@ func (s *Server) LoadGameStateFromNotionHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	var requestBody models.LoadGameStateFromNotionRequestBody
+	var requestBody request.LoadGameStateFromNotionRequestBody
 
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 

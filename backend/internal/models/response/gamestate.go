@@ -1,4 +1,4 @@
-package models
+package response
 
 // 1. Basic building blocks
 // ---------------------------------------------------------

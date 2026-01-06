@@ -38,3 +38,11 @@ tasks:
         curl -vX POST http://localhost:8081/api/loadGameStateFromNotion \
           -H 'Content-Type: application/json' \
           --data '{"notionUrl":"https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1"}'
+
+  test-send-feedback-to-notion:
+    desc: "Send a sample request to /sendFeedback (backend must be running)"
+    cmds:
+      - |
+        curl -vX POST http://localhost:8081/api/sendFeedback \
+          -H 'Content-Type: application/json' \
+          --data '{"name":"Codex Tester","feedback":"Really enjoying NotionQuest!"}'

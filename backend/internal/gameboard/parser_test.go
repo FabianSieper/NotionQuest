@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FabianSieper/NotionQuest/internal/models"
+	"github.com/FabianSieper/NotionQuest/internal/models/response"
 )
 
 func TestParseScenarioInvalidRowLength(t *testing.T) {
@@ -47,7 +47,7 @@ func TestParseGridValid(t *testing.T) {
 	if len(grid[0]) != len(rows[0]) || len(grid[1]) != len(rows[1]) || len(grid[2]) != len(rows[2]) {
 		t.Fatalf("grid columns don't match input rows")
 	}
-	if grid[0][0] != models.TileWall || grid[1][0] != models.TileFloor || grid[2][1] != models.TileGoal {
+	if grid[0][0] != response.TileWall || grid[1][0] != response.TileFloor || grid[2][1] != response.TileGoal {
 		t.Fatalf("grid contents mismatch expected types")
 	}
 }
@@ -64,12 +64,12 @@ func TestParseGridInvalidCharacter(t *testing.T) {
 }
 
 func TestParseTileValid(t *testing.T) {
-	testCases := map[rune]models.TileType{
-		'#': models.TileWall,
-		'.': models.TileFloor,
-		'Z': models.TileGoal,
-		'S': models.TileFloor,
-		'M': models.TileFloor,
+	testCases := map[rune]response.TileType{
+		'#': response.TileWall,
+		'.': response.TileFloor,
+		'Z': response.TileGoal,
+		'S': response.TileFloor,
+		'M': response.TileFloor,
 	}
 
 	for input, expected := range testCases {
@@ -88,8 +88,8 @@ func TestParseTileInvalid(t *testing.T) {
 	if err == nil {
 		t.Fatalf("parseTile('X') expected error, got nil (tile=%v)", tile)
 	}
-	if tile != models.TileUnknown {
-		t.Fatalf("parseTile('X') returned tile %v, expected %v", tile, models.TileUnknown)
+	if tile != response.TileUnknown {
+		t.Fatalf("parseTile('X') returned tile %v, expected %v", tile, response.TileUnknown)
 	}
 }
 

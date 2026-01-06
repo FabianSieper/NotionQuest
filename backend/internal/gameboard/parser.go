@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/FabianSieper/NotionQuest/internal/models"
+	"github.com/FabianSieper/NotionQuest/internal/models/response"
 )
 
 // ParseScenario interprets the textual board pulled from Notion, for example:
@@ -18,7 +18,7 @@ import (
 // #...####...........#
 // #...#..Z...........#
 // ####################
-func ParseScenario(raw string) (*models.GameState, error) {
+func ParseScenario(raw string) (*response.GameState, error) {
 	rows := strings.Split(raw, "\n")
 	// Rows come from top to bottom, so each string represents the Y axis,
 	// while characters within the row walk along the X axis from left to right.
@@ -27,45 +27,45 @@ func ParseScenario(raw string) (*models.GameState, error) {
 	amountRows, amountCols, err := getAmountRowsAndCols(rows)
 
 	if err != nil {
-		return &models.GameState{}, err
+		return &response.GameState{}, err
 	}
 
 	grid, err := parseGrid(rows)
 
 	if err != nil {
-		return &models.GameState{}, err
+		return &response.GameState{}, err
 	}
 
 	playerPosition, err := getPlayerPosition(rows)
 
 	if err != nil {
-		return &models.GameState{}, err
+		return &response.GameState{}, err
 	}
 
 	enemies := extractEnemies(rows)
 
-	return &models.GameState{
+	return &response.GameState{
 		Width:  amountCols,
 		Height: amountRows,
 		Grid:   grid,
-		Player: models.Player{
+		Player: response.Player{
 			Position: playerPosition,
 		},
 		Enemies: enemies,
 	}, nil
 }
 
-func extractEnemies(rows []string) []models.Enemy {
-	enemies := make([]models.Enemy, 0)
+func extractEnemies(rows []string) []response.Enemy {
+	enemies := make([]response.Enemy, 0)
 	index := 1
 	for y, row := range rows {
 		for x, char := range row {
 			if char == 'M' {
 				enemyId := fmt.Sprintf("enemy_%d", index)
-				enemies = append(enemies, models.Enemy{
+				enemies = append(enemies, response.Enemy{
 					ID:       enemyId,
-					Position: models.Position{X: x, Y: y},
-					Type:     models.EnemyTypeMonster,
+					Position: response.Position{X: x, Y: y},
+					Type:     response.EnemyTypeMonster,
 				})
 				index++
 			}
@@ -75,49 +75,49 @@ func extractEnemies(rows []string) []models.Enemy {
 	return enemies
 }
 
-func ExtractPageIdFromNotionUrl(notionUrl string) (models.LoadNotionResponseBody, error) {
+func ExtractPageIdFromNotionUrl(notionUrl string) (response.LoadNotionResponseBody, error) {
 	// TODO: https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link
 	parts := strings.Split(notionUrl, "/")
 
 	// Should at least be split into two parts
 	if len(parts) < 2 {
-		return models.LoadNotionResponseBody{PageId: ""}, fmt.Errorf("invalid Notion URL: %s", notionUrl)
+		return response.LoadNotionResponseBody{PageId: ""}, fmt.Errorf("invalid Notion URL: %s", notionUrl)
 	}
 
 	// Remove query parameter at the end
 	if strings.ContainsRune(parts[len(parts)-1], '?') {
 		// select first part before ? of Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link
 		subParts := strings.Split(parts[len(parts)-1], "?")
-		return models.LoadNotionResponseBody{PageId: subParts[0]}, nil
+		return response.LoadNotionResponseBody{PageId: subParts[0]}, nil
 	}
 
-	return models.LoadNotionResponseBody{PageId: parts[len(parts)-1]}, nil
+	return response.LoadNotionResponseBody{PageId: parts[len(parts)-1]}, nil
 }
 
-func getPlayerPosition(rows []string) (models.Position, error) {
+func getPlayerPosition(rows []string) (response.Position, error) {
 	for y, row := range rows {
 		for x, char := range row {
 			if char == 'S' {
-				return models.Position{X: x, Y: y}, nil
+				return response.Position{X: x, Y: y}, nil
 			}
 		}
 	}
 
-	return models.Position{}, fmt.Errorf("player start position 'S' not found")
+	return response.Position{}, fmt.Errorf("player start position 'S' not found")
 }
 
-func parseGrid(rows []string) ([][]models.TileType, error) {
+func parseGrid(rows []string) ([][]response.TileType, error) {
 
-	var grid [][]models.TileType
+	var grid [][]response.TileType
 
 	for _, row := range rows {
-		var gridRow []models.TileType
+		var gridRow []response.TileType
 
 		for _, char := range row {
 			tile, err := parseTile(char)
 
 			if err != nil {
-				return [][]models.TileType{}, err
+				return [][]response.TileType{}, err
 			}
 			gridRow = append(gridRow, tile)
 		}
@@ -127,19 +127,19 @@ func parseGrid(rows []string) ([][]models.TileType, error) {
 	return grid, nil
 }
 
-var tileMappings = map[rune]models.TileType{
-	'#': models.TileWall,
-	'.': models.TileFloor,
-	'Z': models.TileGoal,
-	'S': models.TileFloor, // start position is represented as floor on the static grid
-	'M': models.TileFloor, // monster spawn points become floor on the static grid
+var tileMappings = map[rune]response.TileType{
+	'#': response.TileWall,
+	'.': response.TileFloor,
+	'Z': response.TileGoal,
+	'S': response.TileFloor, // start position is represented as floor on the static grid
+	'M': response.TileFloor, // monster spawn points become floor on the static grid
 }
 
-func parseTile(char rune) (models.TileType, error) {
+func parseTile(char rune) (response.TileType, error) {
 	if tile, ok := tileMappings[char]; ok {
 		return tile, nil
 	}
-	return models.TileUnknown, fmt.Errorf("invalid tile character: %c", char)
+	return response.TileUnknown, fmt.Errorf("invalid tile character: %c", char)
 }
 
 func getAmountRowsAndCols(rows []string) (int, int, error) {

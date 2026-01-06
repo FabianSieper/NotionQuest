@@ -1,7 +1,37 @@
 package api
 
-import "net/http"
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
 
-func StoreFeedbackInNotion(w http.ResponseWriter, r *http.Request) {
+	"github.com/FabianSieper/NotionQuest/internal/models/request"
+	"github.com/FabianSieper/NotionQuest/internal/notion"
+)
+
+func SendFeedbackToNotion(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, fmt.Sprintf("only POST method is allowed: received %s", r.Method), http.StatusMethodNotAllowed)
+		return
+	}
+
+	var feedbackBody request.SendFeedback
+
+	err := json.NewDecoder(r.Body).Decode(&feedbackBody)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to read request body: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	err = notion.SendFeedbackToNotion(feedbackBody.Name, feedbackBody.Feedback)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to send feedback to Notion. Received error: %v\n", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 
 }
