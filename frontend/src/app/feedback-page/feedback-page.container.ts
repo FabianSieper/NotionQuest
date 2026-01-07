@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
+import { DialogType } from '../model/dialog-type.model';
 import { BackendService } from '../services/backend.service';
 import { FeedbackPageComponent } from './feedback-page.component';
 
@@ -8,12 +9,13 @@ import { FeedbackPageComponent } from './feedback-page.component';
   selector: 'app-feedback-page-container',
   imports: [FeedbackPageComponent],
   template: ` <app-feedback-page-component
-    [loading]="loading()"
-    (back)="router.navigate(['/'])"
-    (send)="sendFeedback()"
     [(name)]="name"
     [(feedback)]="feedback"
     [(wasSubmitted)]="wasSubmitted"
+    [displaDialogType]="displayDialogType()"
+    (back)="router.navigate(['/'])"
+    (send)="sendFeedback()"
+    (resetActiveDialogType)="displayDialogType.set(undefined)"
   />`,
 })
 export class FeedbackPageContainer {
@@ -21,7 +23,7 @@ export class FeedbackPageContainer {
   private readonly backenService = inject(BackendService);
   private readonly logger = inject(NGXLogger);
 
-  protected readonly loading = signal(false);
+  protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
 
   protected name = signal('');
   protected feedback = signal('');
@@ -34,7 +36,7 @@ export class FeedbackPageContainer {
       return;
     }
 
-    this.loading.set(true);
+    this.displayDialogType.set(DialogType.LOADING);
     try {
       await this.backenService.sendFeedback(this.name(), this.feedback());
 
@@ -42,11 +44,10 @@ export class FeedbackPageContainer {
       this.name.set('');
       this.feedback.set('');
       this.wasSubmitted.set(false);
+      this.displayDialogType.set(undefined);
     } catch (error) {
       this.logger.warn(`Failed to send feedback. Received error: ${error}`);
-      // TODO: Display info for user
-    } finally {
-      this.loading.set(false);
+      this.displayDialogType.set(DialogType.BACKEND_ERROR);
     }
   }
 }

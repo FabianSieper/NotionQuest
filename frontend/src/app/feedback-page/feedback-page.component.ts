@@ -7,7 +7,7 @@ import { DialogType } from '../model/dialog-type.model';
   selector: 'app-feedback-page-component',
   imports: [InfoDialogComponent, FormsModule],
   template: `
-    @if(!loading()) {
+    @if(!displaDialogType()) {
     <div class="nes-container with-title is-rounded landing-shell is-dark">
       <p class="title">Feedback</p>
       <div class="input-section">
@@ -40,17 +40,19 @@ import { DialogType } from '../model/dialog-type.model';
     </div>
     }
 
-    <app-info-dialog-component [displayDialogType]="loading() ? DialogType.LOADING : undefined" />
+    <app-info-dialog-component
+      [displayDialogType]="displaDialogType()"
+      (resetActiveDialogType)="resetActiveDialogType.emit()"
+    />
   `,
   styleUrl: './feedback-page.component.scss',
 })
 export class FeedbackPageComponent {
-  readonly loading = input.required();
+  readonly displaDialogType = input.required<DialogType | undefined>();
   readonly back = output();
   readonly send = output();
+  readonly resetActiveDialogType = output();
   readonly name = model.required<string>();
   readonly feedback = model.required<string>();
   readonly wasSubmitted = model.required<boolean>();
-
-  protected DialogType = DialogType;
 }

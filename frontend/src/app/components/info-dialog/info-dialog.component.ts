@@ -77,7 +77,7 @@ export class InfoDialogComponent implements OnInit {
       {
         paragraphs: [
           'Something went wrong in the background.',
-          'Please verify your Notion URL is correct. If so and the error still persists, please try again later, or go sacrifice a goat to tame the gods.',
+          'If the error persists for a longer period, please leave feedback and go sacrifice a goat to tame the gods.',
         ],
         header: 'Sorry',
         addOkButtonForClosing: true,
