@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { NGXLogger } from 'ngx-logger';
 import { BackendService } from '../services/backend.service';
 import { FeedbackPageComponent } from './feedback-page.component';
 
@@ -18,6 +19,7 @@ import { FeedbackPageComponent } from './feedback-page.component';
 export class FeedbackPageContainer {
   protected readonly router = inject(Router);
   private readonly backenService = inject(BackendService);
+  private readonly logger = inject(NGXLogger);
 
   protected readonly loading = signal(false);
 
@@ -41,7 +43,8 @@ export class FeedbackPageContainer {
       this.feedback.set('');
       this.wasSubmitted.set(false);
     } catch (error) {
-      // TODO
+      this.logger.warn(`Failed to send feedback. Received error: ${error}`);
+      // TODO: Display info for user
     } finally {
       this.loading.set(false);
     }

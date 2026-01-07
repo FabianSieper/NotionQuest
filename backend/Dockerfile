@@ -19,6 +19,11 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /main ./main.go
 # Use the chromedp/headless-shell image which already bundles a supported Chrome binary.
 FROM chromedp/headless-shell:latest
 
+# Install CA certificates so outbound HTTPS (e.g. Notion API) works from the container.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 # Run as a non-root user.
 RUN useradd -r -u 65532 -g nogroup appuser
 USER appuser
