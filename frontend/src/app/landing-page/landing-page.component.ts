@@ -1,11 +1,12 @@
 import { Component, input, model, output, signal, viewChild } from '@angular/core';
 import { InfoDialogComponent } from '../components/info-dialog/info-dialog.component';
 import { MessageDialogComponent } from '../components/message-dialog/message-dialog.component';
+import { MusicButtonComponent } from '../components/music-button/music-button.component';
 import { DialogType } from '../model/dialog-type.model';
 
 @Component({
   selector: 'app-landing-page-component',
-  imports: [InfoDialogComponent],
+  imports: [InfoDialogComponent, MusicButtonComponent],
   template: `
     @if (!displayDialogType()) {
     <section class="nes-container is-rounded landing-shell is-dark">
@@ -27,11 +28,12 @@ import { DialogType } from '../model/dialog-type.model';
         </div>
       </div>
     </section>
-    <button class="nes-btn feedback-button" (click)="openFeedbackPackge.emit()">Feedback</button>
+    <button class="nes-btn small-button" (click)="openFeedbackPackge.emit()">Feedback</button>
 
     @if(version()) {
     <span class="nes-text is-disabled version-text">Version {{ version() }}</span>
     } }
+    <app-music-button-component class="small-button" src="assets/audio/landing-page.mp3" />
 
     <app-info-dialog-component
       [displayDialogType]="displayDialogType()"
