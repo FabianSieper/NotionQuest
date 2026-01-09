@@ -48,8 +48,7 @@ export class KeyInputService {
   private moveEnemies(game: Game) {
     if (this.shallLastPressedKeyTriggerEnemyMovement())
       game.enemies.forEach((enemy) => {
-        // Simple AI: move randomly
-        enemy.moveRandomly(game);
+        enemy.moveSmart(game);
       });
   }
 

@@ -8,16 +8,12 @@ export class Enemy extends Actor {
   }
 
   moveRandomly(game: Game, blockedDirections: Direction[] = []): boolean {
-    if (blockedDirections.length === 4) {
+    const possibleDirections = this.getPossibleDirections(blockedDirections);
+    if (possibleDirections.length === 0) {
       return false; // No possible moves
     }
 
-    const allDirections = Object.values(Direction);
-    const possibleDirections = allDirections.filter(
-      (direction) => !blockedDirections.includes(direction)
-    );
-    const randomDirection =
-      possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
+    const randomDirection = this.getRandomDirection(possibleDirections);
 
     const movemementWasSuccessful = this.moveInDirection(randomDirection, game);
 
@@ -27,9 +23,38 @@ export class Enemy extends Actor {
     return true;
   }
 
+  moveSmart(game: Game, blockedDirections: Direction[] = []) {
+    const possibleDirections = this.getPossibleDirections(blockedDirections);
+    if (possibleDirections.length === 0) {
+      return false; // No possible moves
+    }
+
+    // TODO: Should contain some sort of smart movement logic
+    // Move with this.moveUp(), this.moveRight(), ...
+
+    // TODO: remove for final implemention. Just used for current implementation to work and so that the final implementation
+    // is utilized by the program directly.
+    this.moveRandomly(game, blockedDirections);
+
+    return true;
+  }
+
+  private getPossibleDirections(blockedDirections: Direction[]) {
+    if (blockedDirections.length === 4) {
+      return []; // No possible moves
+    }
+
+    const allDirections = Object.values(Direction);
+    return allDirections.filter((direction) => !blockedDirections.includes(direction));
+  }
+
   dance() {
     this.gameElement.visuals.animationDetails.nextCol = 0;
     this.gameElement.visuals.animationDetails.nextRow = 5;
+  }
+
+  private getRandomDirection(possibleDirections: Direction[]) {
+    return possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
   }
 
   private moveInDirection(direction: Direction, game: Game): boolean {
