@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { DialogType } from '../model/dialog-type.model';
@@ -12,6 +12,7 @@ import { LandingPageComponent } from './landing-page.component';
     <app-landing-page-component
       [(notionUrl)]="notionUrl"
       [displayDialogType]="displayDialogType()"
+      [version]="version()"
       (submitQuest)="handleEnterClick()"
       (loadGame)="loadExistingGame()"
       (overwriteGame)="requestLoadingInitialPlayingBoard(true)"
@@ -20,7 +21,7 @@ import { LandingPageComponent } from './landing-page.component';
     />
   `,
 })
-export class LandingPageContainer {
+export class LandingPageContainer implements OnInit {
   private logger = inject(NGXLogger);
   private backendService = inject(BackendService);
   protected router = inject(Router);
@@ -30,8 +31,18 @@ export class LandingPageContainer {
   );
 
   protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
+  protected readonly version = signal<string | undefined>(undefined);
 
   private lastDuplicateNotionPageId: string | undefined = undefined;
+
+  async ngOnInit(): Promise<void> {
+    try {
+      const version = await this.backendService.getProjectVersion();
+      this.version.set(version);
+    } catch (error) {
+      this.logger.warn(`Failed to load version. Received error: ${error}`);
+    }
+  }
 
   protected async handleEnterClick() {
     this.displayDialogType.set(undefined);

@@ -32,6 +32,13 @@
     transform: translateY(140px);
 }
 
+.version-text {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 10px;
+}
+
 h1 {
     text-align: center;
 }

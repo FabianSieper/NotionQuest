@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { LoadGameStateFromNotionRequest } from '../model/load-game-state-from-notion-request.model';
-import { LoadGameStateFromNotionResponse } from '../model/load-game-state-from-notion-response.model';
-import { GameState } from '../model/load-game-state-response.model';
+import { LoadGameStateFromNotionRequest } from '../model/request/load-game-state-from-notion.model';
+import { LoadGameStateFromNotionResponse } from '../model/response/load-game-state-from-notion.model';
+import { GameState } from '../model/response/load-game-state.model';
 
 @Injectable({ providedIn: 'root' })
 export class BackendService {
@@ -36,15 +36,23 @@ export class BackendService {
     );
   }
 
-  getLoadGameStateFromCacheUrl() {
+  getProjectVersion(): Promise<string> {
+    return firstValueFrom(this.httpClient.get<string>(this.getVersionUrl()));
+  }
+
+  protected getLoadGameStateFromCacheUrl() {
     return `/api/loadGameStateFromCache/`;
   }
 
-  getSendFeedbackUrl() {
+  protected getVersionUrl() {
+    return `/api/version`;
+  }
+
+  protected getSendFeedbackUrl() {
     return `/api/sendFeedback`;
   }
 
-  getLoadGameStateFromNotionUrl() {
+  protected getLoadGameStateFromNotionUrl() {
     return `/api/loadGameStateFromNotion`;
   }
 }

@@ -16,7 +16,7 @@ tasks:
 
   run-backend-dev: 
     cmds:
-      - cd backend && go run main.go
+      - cd backend && LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1)) go run main.go
 
   run-frontend-dev:
     cmds:
@@ -25,7 +25,7 @@ tasks:
   run:
     deps: [stop]
     cmds:
-      - docker-compose up -d --build
+      - LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1)) docker-compose up -d --build
 
   stop:
     cmds:

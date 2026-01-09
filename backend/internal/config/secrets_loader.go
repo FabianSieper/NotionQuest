@@ -13,7 +13,7 @@ func GetNotionAccessKey() (error, string) {
 	secret := os.Getenv("NOTION_FEEDBACK_INTEGRATION_SECRET")
 
 	if len(secret) == 0 {
-		return fmt.Errorf("Notion feedback integration secret could be loaded"), ""
+		return fmt.Errorf("Notion feedback integration secret could not be loaded"), ""
 	}
 
 	return nil, secret
@@ -23,10 +23,20 @@ func GetNotionFeedbackDatabaseId() (error, string) {
 	databaseId := os.Getenv("NOTION_FEEDBACK_DATABASE_ID")
 
 	if len(databaseId) == 0 {
-		return fmt.Errorf("Notion feedback database id could be loaded"), ""
+		return fmt.Errorf("Notion feedback database id could not be loaded"), ""
 	}
 
 	return nil, databaseId
+}
+
+func GetHighestGitTag() (error, string) {
+	latestTag := os.Getenv("LATEST_TAG")
+
+	if len(latestTag) == 0 {
+		return fmt.Errorf("Latest tag could not be loaded"), ""
+	}
+
+	return nil, latestTag
 }
 
 func LoadDotEnv() error {

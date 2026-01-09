@@ -1,4 +1,4 @@
-import { EnemyDto, GameState, TileType } from '../../model/load-game-state-response.model';
+import { EnemyDto, GameState, TileType } from '../../model/response/load-game-state.model';
 import { Enemy } from '../core-game/entities/enemy';
 import { Player } from '../core-game/entities/player';
 import { Tile } from '../core-game/entities/tile';

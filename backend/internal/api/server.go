@@ -32,14 +32,14 @@ func (s *Server) LoadGameStateFromCache(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Load game
-	fmt.Printf("Trying to load game with id %s\n", gameId)
+	fmt.Printf("INFO - Trying to load game with id %s\n", gameId)
 	gameState, ok := s.Cache.Get(gameId)
 
 	if !ok {
 		http.Error(w, fmt.Sprintf("game with gameId %s was not found in cache", gameId), http.StatusNotFound)
 		return
 	}
-	fmt.Printf("Successfully loaded game with id %s\n", gameId)
+	fmt.Printf("INFO - Successfully loaded game with id %s\n", gameId)
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(gameState)
@@ -91,7 +91,7 @@ func (s *Server) LoadGameStateFromNotionHandler(w http.ResponseWriter, r *http.R
 		http.Error(w, fmt.Sprintf("Failed to load Notion page: %v", err), http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("INFO - Successfully loaded Notion page content")
+	fmt.Printf("INFO - Successfully loaded Notion page content\n")
 
 	parsedGameField, err := gameboard.ParseScenario(resp)
 
@@ -102,7 +102,7 @@ func (s *Server) LoadGameStateFromNotionHandler(w http.ResponseWriter, r *http.R
 
 	// Store the parsed game field in the cache
 	s.Cache.Set(responseBody.PageId, *parsedGameField)
-	fmt.Printf("Saved game with id %s\n", responseBody.PageId)
+	fmt.Printf("INFO - Saved game with id %s\n", responseBody.PageId)
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(responseBody)
