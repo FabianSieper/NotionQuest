@@ -34,8 +34,8 @@
 
 .version-text {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
+    bottom: 15px;
+    right: 15px;
     font-size: 10px;
 }
 
@@ -43,14 +43,14 @@ h1 {
     text-align: center;
 }
 
-app-music-button-component {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+app-music-button-container {
+    transform: scale(0.8);
+    margin: 0px;
 }
 
-.small-button {
-    transform: scale(0.8);          
+.feedback-button {
+    transform: scale(0.9);          
+    margin: 0px;
 }
 
 .input-error {

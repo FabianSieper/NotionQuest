@@ -1,12 +1,13 @@
 import { Component, input, output } from '@angular/core';
 import { InfoDialogComponent } from '../components/info-dialog/info-dialog.component';
+import { MusicButtonContainer } from '../components/music-button/music-button.container';
 import { DialogType } from '../model/dialog-type.model';
 import { GameContainer } from './components/game/game.container';
 
 @Component({
   selector: 'app-game-page-component',
   styleUrl: 'game-page.component.scss',
-  imports: [GameContainer, InfoDialogComponent],
+  imports: [GameContainer, InfoDialogComponent, MusicButtonContainer],
   template: `
     <app-info-dialog-component
       [displayDialogType]="displayDialogType()"
@@ -27,7 +28,12 @@ import { GameContainer } from './components/game/game.container';
         (gameLost)="gameLost.emit()"
         (gameWon)="gameWon.emit()"
       />
-      <button (click)="backClicked.emit()" class="nes-btn">Take me back</button>
+      <div>
+        <button (click)="backClicked.emit()" class="nes-btn take-me-back-button">
+          Take me back
+        </button>
+        <app-music-button-container class="small-button" />
+      </div>
     </div>
     }
   `,

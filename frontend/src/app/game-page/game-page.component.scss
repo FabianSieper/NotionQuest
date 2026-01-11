@@ -15,6 +15,12 @@
     flex-direction: column;
 }
 
-button {
-    margin-top: 20px;
+.take-me-back-button {
+    transform: scale(0.9);
+    margin: 0px
+}
+
+app-music-button-container {
+    transform: scale(0.8);
+    margin: 0px;
 }

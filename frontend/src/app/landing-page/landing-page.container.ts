@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { DialogType } from '../model/dialog-type.model';
+import { AudioService } from '../services/audio.service';
 import { BackendService } from '../services/backend.service';
 import { LandingPageComponent } from './landing-page.component';
 
@@ -25,6 +26,7 @@ export class LandingPageContainer implements OnInit {
   private logger = inject(NGXLogger);
   private backendService = inject(BackendService);
   protected router = inject(Router);
+  protected audioService = inject(AudioService);
 
   protected readonly notionUrl = signal<string>(
     'https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link'
@@ -36,12 +38,8 @@ export class LandingPageContainer implements OnInit {
   private lastDuplicateNotionPageId: string | undefined = undefined;
 
   async ngOnInit(): Promise<void> {
-    try {
-      const version = await this.backendService.getProjectVersion();
-      this.version.set(version);
-    } catch (error) {
-      this.logger.warn(`Failed to load version. Received error: ${error}`);
-    }
+    this.initAudioService();
+    await this.loadVersion();
   }
 
   protected async handleEnterClick() {
@@ -95,6 +93,24 @@ export class LandingPageContainer implements OnInit {
       }, 2500);
     } catch (error) {
       this.handleError(error as Error);
+    }
+  }
+
+  private async loadVersion() {
+    try {
+      const version = await this.backendService.getProjectVersion();
+      this.version.set(version);
+    } catch (error) {
+      this.logger.warn(`Failed to load version. Received error: ${error}`);
+    }
+  }
+
+  private initAudioService() {
+    // Only set audio src if game initis the first time and not, for example,
+    // when the player returns back to the main page. That transition is handled
+    // differently to allow for transitions between music.
+    if (!this.audioService.isAudioDefined()) {
+      this.audioService.setAudioSrc('assets/audio/landing-page.mp3', true);
     }
   }
 

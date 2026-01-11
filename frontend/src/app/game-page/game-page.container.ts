@@ -1,10 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, effect, inject, Signal, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, Signal, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { map } from 'rxjs';
 import { DialogType } from '../model/dialog-type.model';
+import { AudioService } from '../services/audio.service';
 import { GamePageComponent } from './game-page.component';
 import { GameService } from './services/game.service';
 
@@ -24,11 +25,12 @@ import { GameService } from './services/game.service';
     />
   `,
 })
-export class GamePageContainer {
+export class GamePageContainer implements OnInit {
   readonly router = inject(Router);
   private readonly logger = inject(NGXLogger);
   private readonly route = inject(ActivatedRoute);
   private readonly gameService = inject(GameService);
+  private readonly audioService = inject(AudioService);
 
   protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
 
@@ -40,6 +42,10 @@ export class GamePageContainer {
     const gameId = this.gameId();
     this.loadGame(gameId);
   });
+
+  ngOnInit(): void {
+    this.initAudioService();
+  }
 
   protected async loadGame(gameId: string | undefined) {
     if (!gameId) {
@@ -60,6 +66,15 @@ export class GamePageContainer {
       } else {
         this.handleGenericError(error, gameId);
       }
+    }
+  }
+
+  private initAudioService() {
+    // Only set audio src if game initis the first time and not, for example,
+    // when the player returns back to the main page. That transition is handled
+    // differently to allow for transitions between music.
+    if (!this.audioService.isAudioDefined()) {
+      this.audioService.setAudioSrc('assets/audio/landing-page.mp3', true);
     }
   }
 
