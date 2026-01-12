@@ -32,9 +32,7 @@ import { DialogType } from '../model/dialog-type.model';
       <button class="nes-btn feedback-button" (click)="openFeedbackPackge.emit()">Feedback</button>
     </div>
 
-    @if(version()) {
-    <span class="nes-text is-disabled version-text">Version {{ version() }}</span>
-    }
+    <!-- TODO: add version component here -->
 
     <app-music-button-container />
     }
@@ -51,7 +49,6 @@ import { DialogType } from '../model/dialog-type.model';
 })
 export class LandingPageComponent {
   readonly displayDialogType = input.required<DialogType | undefined>();
-  readonly version = input<string | undefined>(undefined);
   readonly notionUrl = model.required<string>();
   readonly submitQuest = output<void>();
   readonly overwriteGame = output<void>();

@@ -2,8 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { DialogType } from '../model/dialog-type.model';
-import { MusicService } from '../services/music.service';
 import { BackendService } from '../services/backend.service';
+import { MusicService } from '../services/music.service';
 import { LandingPageComponent } from './landing-page.component';
 
 @Component({
@@ -13,7 +13,6 @@ import { LandingPageComponent } from './landing-page.component';
     <app-landing-page-component
       [(notionUrl)]="notionUrl"
       [displayDialogType]="displayDialogType()"
-      [version]="version()"
       (submitQuest)="handleEnterClick()"
       (loadGame)="loadExistingGame()"
       (overwriteGame)="requestLoadingInitialPlayingBoard(true)"
@@ -39,7 +38,6 @@ export class LandingPageContainer implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.initMusicService();
-    await this.loadVersion();
   }
 
   protected async handleEnterClick() {
@@ -96,15 +94,6 @@ export class LandingPageContainer implements OnInit {
     }
   }
 
-  private async loadVersion() {
-    try {
-      const version = await this.backendService.getProjectVersion();
-      this.version.set(version);
-    } catch (error) {
-      this.logger.warn(`Failed to load version. Received error: ${error}`);
-    }
-  }
-
   private initMusicService() {
     // Only set audio src if game initis the first time and not, for example,
     // when the player returns back to the main page. That transition is handled
@@ -120,12 +109,10 @@ export class LandingPageContainer implements OnInit {
 
     // HTTP 409 indicates that there is already a game for the provided Notion page
     if (error.message.includes('409')) {
-      // TODO: do use displayDialogType instead
       this.displayDialogType.set(DialogType.DUPLICATE_FOUND);
       // Store notion URL for later
       this.lastDuplicateNotionPageId = this.extractNotionPageId(this.notionUrl());
     } else {
-      // TODO: display error via thingy
       this.displayDialogType.set(DialogType.BACKEND_ERROR);
     }
   }

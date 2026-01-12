@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-music-button-component',
   imports: [MatIconModule],
   template: `
-    <div class="button-row">
+    <div>
       <button type="button" class="nes-btn" (click)="quieter.emit()">
         <mat-icon>remove</mat-icon>
       </button>

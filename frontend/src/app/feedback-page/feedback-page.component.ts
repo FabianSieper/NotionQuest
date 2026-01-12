@@ -1,11 +1,12 @@
 import { Component, input, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InfoDialogComponent } from '../components/info-dialog/info-dialog.component';
+import { MusicButtonContainer } from '../components/music-button/music-button.container';
 import { DialogType } from '../model/dialog-type.model';
 
 @Component({
   selector: 'app-feedback-page-component',
-  imports: [InfoDialogComponent, FormsModule],
+  imports: [InfoDialogComponent, FormsModule, MusicButtonContainer],
   template: `
     @if(!displaDialogType()) {
     <div class="nes-container with-title is-rounded landing-shell is-dark">
@@ -38,6 +39,9 @@ import { DialogType } from '../model/dialog-type.model';
         <button type="button" class="nes-btn is-primary" (click)="send.emit()">Send</button>
       </div>
     </div>
+
+    <app-music-button-container />
+
     }
 
     <app-info-dialog-component
