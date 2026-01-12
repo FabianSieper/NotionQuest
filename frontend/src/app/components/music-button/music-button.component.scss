@@ -1,26 +1,24 @@
 :host {
     position: absolute;
-    top: 0px;
-    right: -20px;
+    top: -30px;
+    right: 0px;
     transform: scale(0.6);
 }
 
-.music-volume-readout {
-  font-size: 20px;
-}
-
-.volume-display-area {
-    margin-left: 5px;
-    margin-right: 2px;
+.volume-display-column {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
-.button-row {
-    margin-right: 5px;
+.button-column {
+    display: flex;
+    flex-direction: column;
 }
 
 progress {
-    height: 20px;
+    height: 100px;
+    transform: rotate(180deg);
+    writing-mode: vertical-lr;
 }

@@ -39,9 +39,7 @@ import { DialogType } from '../model/dialog-type.model';
         <button type="button" class="nes-btn is-primary" (click)="send.emit()">Send</button>
       </div>
     </div>
-
     <app-music-button-container />
-
     }
 
     <app-info-dialog-component

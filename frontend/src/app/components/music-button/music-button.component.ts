@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-music-button-component',
   imports: [MatIconModule],
   template: `
-    <div>
+    <div class="button-column">
       <button type="button" class="nes-btn" (click)="quieter.emit()">
         <mat-icon>remove</mat-icon>
       </button>
@@ -20,9 +20,9 @@ import { MatIconModule } from '@angular/material/icon';
         }
       </button>
     </div>
-    <div class="volume-display-area">
-      <span>{{ volume() }}</span>
+    <div class="volume-display-column">
       <progress class="nes-progress is-dark is-primary" [value]="volume()" max="100"></progress>
+      <span>{{ volume() }}</span>
     </div>
   `,
   styleUrl: './music-button.component.scss',
