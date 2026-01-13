@@ -30,9 +30,9 @@ import { VersionContainer } from '../components/version/version.container';
         (gameWon)="gameWon.emit()"
       />
       <button (click)="backClicked.emit()" class="nes-btn take-me-back-button">Take me back</button>
+      <app-music-button-container />
+      <app-version-container />
     </div>
-    <app-music-button-container />
-    <app-version-container />
     }
   `,
 })
