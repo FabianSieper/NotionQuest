@@ -45,27 +45,17 @@ export class LandingPageContainer implements OnInit {
   protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
   protected readonly version = signal<string | undefined>(undefined);
 
-  private lastDuplicateNotionPageId: string | undefined = undefined;
-
   async ngOnInit(): Promise<void> {
     this.initMusicService();
   }
 
   protected async handleEnterClick() {
     this.displayDialogType.set(undefined);
-    this.lastDuplicateNotionPageId = undefined;
   }
 
   protected loadExistingGame() {
-    const existingGameId = this.lastDuplicateNotionPageId;
-
-    if (!existingGameId) {
-      this.logger.error('Not able to load existing ame, as the existing game id is undefined');
-      return;
-    }
-
     this.logger.info('Loading existing game');
-    this.router.navigate(['/game', existingGameId]);
+    // this.router.navigate(['/game', existingGameId]);
   }
 
   private initMusicService() {

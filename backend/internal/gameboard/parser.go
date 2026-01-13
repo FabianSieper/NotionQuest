@@ -5,10 +5,10 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/FabianSieper/NotionQuest/internal/models/response"
+	"github.com/FabianSieper/StepOrDie/internal/models/response"
 )
 
-// ParseScenario interprets the textual board pulled from Notion, for example:
+// ParseScenario interprets the textual board, for example:
 // ####################
 // #S.................#
 // #...####...M.......#
@@ -73,25 +73,6 @@ func extractEnemies(rows []string) []response.Enemy {
 	}
 
 	return enemies
-}
-
-func ExtractPageIdFromNotionUrl(notionUrl string) (response.LoadNotionResponseBody, error) {
-	// TODO: https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link
-	parts := strings.Split(notionUrl, "/")
-
-	// Should at least be split into two parts
-	if len(parts) < 2 {
-		return response.LoadNotionResponseBody{PageId: ""}, fmt.Errorf("invalid Notion URL: %s", notionUrl)
-	}
-
-	// Remove query parameter at the end
-	if strings.ContainsRune(parts[len(parts)-1], '?') {
-		// select first part before ? of Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link
-		subParts := strings.Split(parts[len(parts)-1], "?")
-		return response.LoadNotionResponseBody{PageId: subParts[0]}, nil
-	}
-
-	return response.LoadNotionResponseBody{PageId: parts[len(parts)-1]}, nil
 }
 
 func getPlayerPosition(rows []string) (response.Position, error) {

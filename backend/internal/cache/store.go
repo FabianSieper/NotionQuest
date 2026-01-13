@@ -3,7 +3,7 @@ package cache
 import (
 	"sync"
 
-	"github.com/FabianSieper/NotionQuest/internal/models/response"
+	"github.com/FabianSieper/StepOrDie/internal/models/response"
 )
 
 // GameCache keeps parsed Notion boards in memory for reuse.

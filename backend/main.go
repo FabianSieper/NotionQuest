@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/FabianSieper/NotionQuest/internal/api"
-	"github.com/FabianSieper/NotionQuest/internal/cache"
-	"github.com/FabianSieper/NotionQuest/internal/config"
+	"github.com/FabianSieper/StepOrDie/internal/api"
+	"github.com/FabianSieper/StepOrDie/internal/cache"
+	"github.com/FabianSieper/StepOrDie/internal/config"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 )

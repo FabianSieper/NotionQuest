@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FabianSieper/NotionQuest/internal/models/response"
+	"github.com/FabianSieper/StepOrDie/internal/models/response"
 )
 
 func TestParseScenarioInvalidRowLength(t *testing.T) {

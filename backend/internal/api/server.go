@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/FabianSieper/NotionQuest/internal/cache"
+	"github.com/FabianSieper/StepOrDie/internal/cache"
 	"github.com/go-chi/chi/v5"
 )
 

@@ -11,7 +11,7 @@ import { DialogType } from '../model/dialog-type.model';
   template: `
     @if (!displayDialogType()) {
     <section class="nes-container is-rounded landing-shell is-dark">
-      <h1>Welcome to NotionQuest!</h1>
+      <h1>Welcome to Step or Die!</h1>
       <textarea [(ngModel)]="gameField"></textarea>
     </section>
     <div>
@@ -24,7 +24,6 @@ import { DialogType } from '../model/dialog-type.model';
 
     <app-info-dialog-component
       [displayDialogType]="displayDialogType()"
-      loadingHeaderAppendix="from Notion"
       (resetActiveDialogType)="resetActiveDialogType.emit()"
       (loadGame)="loadGame.emit()"
       (overwriteGame)="overwriteGame.emit()"

@@ -96,22 +96,6 @@ export class InfoDialogComponent implements OnInit {
       },
     ],
     [DialogType.SUCCESS, { paragraphs: undefined, header: 'Success!' }],
-    [
-      DialogType.NOTION_URL_EMPTY,
-      {
-        paragraphs: ['It seems you have not entered anything.'],
-        header: 'Thats not how things work',
-        addOkButtonForClosing: true,
-      },
-    ],
-    [
-      DialogType.INVALID_NOTION_URL,
-      {
-        paragraphs: ['The URL you entered does not seem to be a valid Notion URL.'],
-        header: 'Na aaah',
-        addOkButtonForClosing: true,
-      },
-    ],
     [DialogType.ARE_YOU_SURE, undefined], // Is handled via are-you-sure-dialog.component.ts
     [DialogType.DUPLICATE_FOUND, undefined], // Is handled via are-you-sure-dialog.component.ts
     [DialogType.WON, undefined], // Is handled via app-lost-or-won-dialog-component.component.ts
