@@ -6,9 +6,6 @@ import (
 	"net/http"
 
 	"github.com/FabianSieper/NotionQuest/internal/cache"
-	"github.com/FabianSieper/NotionQuest/internal/gameboard"
-	"github.com/FabianSieper/NotionQuest/internal/models/request"
-	"github.com/FabianSieper/NotionQuest/internal/notion"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -46,69 +43,6 @@ func (s *Server) LoadGameStateFromCache(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		http.Error(w, "Could not encode game state", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (s *Server) LoadGameStateFromNotionHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodPost {
-		http.Error(w, fmt.Sprintf("only POST method is allowed: received %s", r.Method), http.StatusMethodNotAllowed)
-		return
-	}
-
-	var requestBody request.LoadGameStateFromNotionRequestBody
-
-	err := json.NewDecoder(r.Body).Decode(&requestBody)
-
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to read request body: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	responseBody, err := gameboard.ExtractPageIdFromNotionUrl(requestBody.NotionUrl)
-
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to extract page ID from Notion URL: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	_, ok := s.Cache.Get(responseBody.PageId)
-
-	shouldOverwrite := r.URL.Query().Get("overwrite") == "true"
-
-	// Still continue and overwrite if user sent an corresponding parameter = true
-	if ok && !requestBody.Overwrite && !shouldOverwrite {
-		http.Error(w, fmt.Sprintf("Game with page ID %s already exists in cache", responseBody.PageId), http.StatusConflict)
-		return
-	} else if ok {
-		fmt.Printf("INFO - Overwriting existing game with page ID %s\n", responseBody.PageId)
-	}
-
-	resp, err := notion.GetPublicNotionPageContent(requestBody.NotionUrl)
-
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to load Notion page: %v", err), http.StatusInternalServerError)
-		return
-	}
-	fmt.Printf("INFO - Successfully loaded Notion page content\n")
-
-	parsedGameField, err := gameboard.ParseScenario(resp)
-
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to parse Notion page content into game field: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	// Store the parsed game field in the cache
-	s.Cache.Set(responseBody.PageId, *parsedGameField)
-	fmt.Printf("INFO - Saved game with id %s\n", responseBody.PageId)
-
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(responseBody)
-
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
 		return
 	}
 }

@@ -9,23 +9,28 @@
 }
 
 .landing-shell {
-    max-width: 800px;
-    width: 100%;
+    width: 60vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .label-input {
     padding-left: 10px;
 }
 
-.nes-input {
-  font-family: 'Press Start 2P', system-ui, sans-serif;
-  caret-color: #32ff7e; /* neon green arcade caret */
-}
-
 .input-line {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+textarea {
+    width: min(22vw, 600px);
+    aspect-ratio: 0.7 / 1; 
+    resize: none;
+    font-size: 19px;
+    padding-inline-start: 8px;
 }
 
 h1 {

@@ -11,11 +11,10 @@ import { LandingPageComponent } from './landing-page.component';
   imports: [LandingPageComponent],
   template: `
     <app-landing-page-component
-      [(notionUrl)]="notionUrl"
+      [(gameField)]="gameField"
       [displayDialogType]="displayDialogType()"
       (submitQuest)="handleEnterClick()"
       (loadGame)="loadExistingGame()"
-      (overwriteGame)="requestLoadingInitialPlayingBoard(true)"
       (resetActiveDialogType)="this.displayDialogType.set(undefined)"
       (openFeedbackPackge)="router.navigate(['/feedback'])"
     />
@@ -27,9 +26,21 @@ export class LandingPageContainer implements OnInit {
   protected router = inject(Router);
   protected musicService = inject(MusicService);
 
-  protected readonly notionUrl = signal<string>(
-    'https://fabiansieper.notion.site/Notion-Quest-2c25e55239fb80f78f9df3fa2c2d65d1?source=copy_link'
-  );
+  protected readonly gameField = signal<string>(`###############
+#S............#
+#...####...M..#
+#...#......##.#
+#...#..M......#
+#.............#
+#...####......#
+#...#..Z......#
+#...#.....M...#
+#.............#
+#.......####..#
+#....M..#..#..#
+#.......#..#..#
+#.......####..#
+###############`);
 
   protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
   protected readonly version = signal<string | undefined>(undefined);
@@ -43,22 +54,6 @@ export class LandingPageContainer implements OnInit {
   protected async handleEnterClick() {
     this.displayDialogType.set(undefined);
     this.lastDuplicateNotionPageId = undefined;
-
-    this.logger.info('Notion URL submitted:', this.notionUrl());
-
-    if (this.isNotionUrlEmpty()) {
-      this.logger.warn('Provided Notion URL is empty:', this.notionUrl());
-      this.displayDialogType.set(DialogType.NOTION_URL_EMPTY);
-      return;
-    }
-
-    if (!this.isNotionUrlValid()) {
-      this.logger.warn('Provided Notion URL is not valid:', this.notionUrl());
-      this.displayDialogType.set(DialogType.INVALID_NOTION_URL);
-      return;
-    }
-
-    await this.requestLoadingInitialPlayingBoard();
   }
 
   protected loadExistingGame() {
@@ -73,27 +68,6 @@ export class LandingPageContainer implements OnInit {
     this.router.navigate(['/game', existingGameId]);
   }
 
-  protected async requestLoadingInitialPlayingBoard(overwrite = false) {
-    try {
-      this.displayDialogType.set(DialogType.LOADING);
-      this.logger.info('Sending request to load initial playing board...');
-      const response = await this.backendService.loadGameStateFromNotion(
-        this.notionUrl(),
-        overwrite
-      );
-      this.logger.info('Successfully loaded initial playing board. Received Response: ', response);
-      this.displayDialogType.set(DialogType.SUCCESS);
-
-      // Open game pager after
-      setTimeout(() => {
-        this.displayDialogType.set(undefined);
-        this.router.navigate(['/game', response.pageId]);
-      }, 2500);
-    } catch (error) {
-      this.handleError(error as Error);
-    }
-  }
-
   private initMusicService() {
     // Only set audio src if game initis the first time and not, for example,
     // when the player returns back to the main page. That transition is handled
@@ -102,38 +76,5 @@ export class LandingPageContainer implements OnInit {
       // Music from https://pixabay.com/music/video-games-i-love-my-8-bit-game-console-301272/
       this.musicService.setAudioSrc('assets/audio/landing-page.mp3', true);
     }
-  }
-
-  private handleError(error: Error) {
-    this.logger.warn('Error loading initial playing board:', error);
-
-    // HTTP 409 indicates that there is already a game for the provided Notion page
-    if (error.message.includes('409')) {
-      this.displayDialogType.set(DialogType.DUPLICATE_FOUND);
-      // Store notion URL for later
-      this.lastDuplicateNotionPageId = this.extractNotionPageId(this.notionUrl());
-    } else {
-      this.displayDialogType.set(DialogType.BACKEND_ERROR);
-    }
-  }
-
-  private extractNotionPageId(url: string): string | undefined {
-    if (!url) return undefined;
-    try {
-      const parsed = new URL(url);
-      const slug = parsed.pathname.split('/').filter(Boolean).pop();
-      if (!slug) return undefined;
-      return slug.split('?')[0];
-    } catch {
-      return undefined;
-    }
-  }
-
-  private isNotionUrlEmpty(): boolean {
-    return this.notionUrl().trim().length === 0;
-  }
-
-  private isNotionUrlValid(): boolean {
-    return this.notionUrl().includes('.notion.site/');
   }
 }
