@@ -11,8 +11,12 @@ import { DialogType } from '../model/dialog-type.model';
   template: `
     @if (!displayDialogType()) {
     <section class="nes-container is-rounded landing-shell is-dark">
-      <h1>Welcome to Step or Die!</h1>
-      <textarea [(ngModel)]="gameField"></textarea>
+      <h1>Step or Die!</h1>
+      <label for="game-id-input" class="space-above">Game ID</label>
+      <input id="game-id-input" class="nes-input game-id-input" [(value)]="gameId" />
+      <label for="playing-field" class="space-above">Playing Field</label>
+      <textarea id="playing-field" [(ngModel)]="gameField"></textarea>
+      <button class="nes-btn is-primary" (click)="playClicked.emit()">Play</button>
     </section>
     <div>
       <button class="nes-btn feedback-button" (click)="openFeedbackPackge.emit()">Feedback</button>
@@ -33,19 +37,17 @@ import { DialogType } from '../model/dialog-type.model';
 })
 export class LandingPageComponent {
   readonly displayDialogType = input.required<DialogType | undefined>();
+  readonly gameField = model.required<string>();
+  readonly gameId = model.required<string>();
 
-  readonly gameField = model<string>();
+  readonly playClicked = output();
+
+  // Outputs of app-info-dialog-component
   readonly submitQuest = output<void>();
   readonly overwriteGame = output<void>();
   readonly loadGame = output<void>();
   readonly resetActiveDialogType = output();
   readonly openFeedbackPackge = output();
+
   protected readonly showInputError = signal(false);
-
-  protected onSubmitClicked(): void {
-    // TODO
-
-    this.showInputError.set(false);
-    this.submitQuest.emit();
-  }
 }

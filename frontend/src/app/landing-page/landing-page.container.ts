@@ -2,7 +2,6 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { DialogType } from '../model/dialog-type.model';
-import { BackendService } from '../services/backend.service';
 import { MusicService } from '../services/music.service';
 import { LandingPageComponent } from './landing-page.component';
 
@@ -12,6 +11,7 @@ import { LandingPageComponent } from './landing-page.component';
   template: `
     <app-landing-page-component
       [(gameField)]="gameField"
+      [(gameId)]="gameId"
       [displayDialogType]="displayDialogType()"
       (submitQuest)="handleEnterClick()"
       (loadGame)="loadExistingGame()"
@@ -22,9 +22,15 @@ import { LandingPageComponent } from './landing-page.component';
 })
 export class LandingPageContainer implements OnInit {
   private logger = inject(NGXLogger);
-  private backendService = inject(BackendService);
   protected router = inject(Router);
   protected musicService = inject(MusicService);
+
+  // Init game id with random string
+  protected readonly gameId = signal<string>(
+    Array.from({ length: 12 }, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join(
+      ''
+    )
+  );
 
   protected readonly gameField = signal<string>(`###############
 #S............#
