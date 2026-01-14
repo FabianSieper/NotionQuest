@@ -3,7 +3,6 @@ package gameboard
 import (
 	"fmt"
 	"strings"
-	"unicode"
 
 	"github.com/FabianSieper/StepOrDie/internal/models/response"
 )
@@ -22,7 +21,6 @@ func ParseScenario(raw string) (*response.GameState, error) {
 	rows := strings.Split(raw, "\n")
 	// Rows come from top to bottom, so each string represents the Y axis,
 	// while characters within the row walk along the X axis from left to right.
-	rows = sanitizeRows(rows)
 
 	amountRows, amountCols, err := getAmountRowsAndCols(rows)
 
@@ -76,15 +74,27 @@ func extractEnemies(rows []string) []response.Enemy {
 }
 
 func getPlayerPosition(rows []string) (response.Position, error) {
+	var playerPosition response.Position
+
 	for y, row := range rows {
 		for x, char := range row {
 			if char == 'S' {
-				return response.Position{X: x, Y: y}, nil
+				if playerPosition != (response.Position{}) {
+					return response.Position{}, fmt.Errorf("multiple occurences of character 'S' found. Only one is allowed.")
+				}
+
+				playerPosition = response.Position{X: x, Y: y}
 			}
 		}
 	}
 
-	return response.Position{}, fmt.Errorf("player start position 'S' not found")
+	// If no player was found
+	if playerPosition == (response.Position{}) {
+		return response.Position{}, fmt.Errorf("player start position 'S' not found")
+	}
+	// Success, exactly one player position was found
+	return playerPosition, nil
+
 }
 
 func parseGrid(rows []string) ([][]response.TileType, error) {
@@ -155,35 +165,4 @@ func ensureRowsSameLength(rows []string) error {
 		}
 	}
 	return nil
-}
-
-func sanitizeRows(rows []string) []string {
-	cleaned := make([]string, 0, len(rows))
-	for _, row := range rows {
-		s := sanitizeRow(row)
-		if s == "" {
-			continue
-		}
-		cleaned = append(cleaned, s)
-	}
-
-	return cleaned
-}
-
-func sanitizeRow(row string) string {
-	var cleaned strings.Builder
-	cleaned.Grow(len(row))
-	for _, r := range row {
-		switch {
-		case unicode.In(r, unicode.Cf):
-			continue
-		case r == '\r' || r == '\t':
-			continue
-		default:
-			if _, ok := tileMappings[r]; ok {
-				cleaned.WriteRune(r)
-			}
-		}
-	}
-	return cleaned.String()
 }

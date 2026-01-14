@@ -104,7 +104,8 @@ export class LandingPageContainer implements OnInit {
         this.logger.warn(
           `Failed to parse playing board or request body. Received error: ${error.message}`
         );
-        this.displayDialogType.set(DialogType.BACKEND_ERROR); // TODO: replace with user error
+        // TODO: parsing seems to work even though there are invalid characters contained
+        this.displayDialogType.set(DialogType.USER_INPUT_ERROR);
       } else if (error.status === 409) {
         this.logger.warn(`Game state for game id already stored.`);
         this.displayDialogType.set(DialogType.DUPLICATE_FOUND);

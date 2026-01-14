@@ -95,6 +95,18 @@ export class InfoDialogComponent implements OnInit {
         switchParagraphsAfterMs: 2000,
       },
     ],
+    [
+      DialogType.USER_INPUT_ERROR,
+      {
+        paragraphs: [
+          'Information you entered seems to be incorrect.',
+          'Please verify that a gameId is set and the playing board is valid.',
+          'A valid playing board has the same amount of rows and columns, each of equal length and only consists of the following characters: #, S, ., Z and M. Also only one character S is allowed.',
+        ],
+        addOkButtonForClosing: true,
+        header: 'All your fault',
+      },
+    ],
     [DialogType.SUCCESS, { paragraphs: undefined, header: 'Success!' }],
     [DialogType.ARE_YOU_SURE, undefined], // Is handled via are-you-sure-dialog.component.ts
     [DialogType.DUPLICATE_FOUND, undefined], // Is handled via are-you-sure-dialog.component.ts
