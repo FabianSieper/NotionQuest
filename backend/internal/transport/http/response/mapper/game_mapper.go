@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"github.com/FabianSieper/StepOrDie/internal/domain"
+	"github.com/FabianSieper/StepOrDie/internal/transport/http/request"
 	"github.com/FabianSieper/StepOrDie/internal/transport/http/response"
 )
 
@@ -11,6 +12,17 @@ func GameFromDomain(game domain.Game) response.Game {
 		Height: game.Height,
 		Grid:   mapGrid(game.Grid),
 		State:  mapGameState(game.SavedState), // Always return saved state
+	}
+}
+
+func GameToDomain(game request.Game) domain.Game {
+	state := MapResponseGameState(game.State)
+	return domain.Game{
+		Width:        game.Width,
+		Height:       game.Height,
+		Grid:         mapResponseGrid(game.Grid),
+		InitialState: state,
+		SavedState:   state,
 	}
 }
 
@@ -47,6 +59,46 @@ func mapGrid(grid [][]domain.TileType) [][]response.TileType {
 		mappedRow := make([]response.TileType, 0, len(row))
 		for _, tile := range row {
 			mappedRow = append(mappedRow, response.TileType(tile))
+		}
+		mapped = append(mapped, mappedRow)
+	}
+
+	return mapped
+}
+
+func MapResponseGameState(state request.GameState) domain.GameState {
+	enemies := make([]domain.Enemy, 0, len(state.Enemies))
+	for _, enemy := range state.Enemies {
+		enemies = append(enemies, mapResponseEnemy(enemy))
+	}
+
+	return domain.GameState{
+		Player:  domain.Player{Position: mapResponsePosition(state.Player.Position)},
+		Enemies: enemies,
+	}
+}
+
+func mapResponseEnemy(enemy request.Enemy) domain.Enemy {
+	return domain.Enemy{
+		ID:       enemy.ID,
+		Position: mapResponsePosition(enemy.Position),
+		Type:     domain.EnemyType(enemy.Type),
+	}
+}
+
+func mapResponsePosition(position request.Position) domain.Position {
+	return domain.Position{
+		X: position.X,
+		Y: position.Y,
+	}
+}
+
+func mapResponseGrid(grid [][]request.TileType) [][]domain.TileType {
+	mapped := make([][]domain.TileType, 0, len(grid))
+	for _, row := range grid {
+		mappedRow := make([]domain.TileType, 0, len(row))
+		for _, tile := range row {
+			mappedRow = append(mappedRow, domain.TileType(tile))
 		}
 		mapped = append(mapped, mappedRow)
 	}

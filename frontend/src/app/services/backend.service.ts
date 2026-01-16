@@ -9,7 +9,7 @@ export class BackendService {
 
   storeGameStateFromString(gameId: string, playingBoard: string, overwrite: boolean) {
     return firstValueFrom(
-      this.httpClient.post<void>(this.getstoreGameStateUrl(), {
+      this.httpClient.post<void>(this.getstoreGameStateFromStringUrl(), {
         gameId,
         playingBoard,
         overwrite,
@@ -54,5 +54,9 @@ export class BackendService {
 
   protected getstoreGameStateUrl() {
     return `/api/storeGameState`;
+  }
+
+  protected getstoreGameStateFromStringUrl() {
+    return `/api/storeGameStateFromString`;
   }
 }

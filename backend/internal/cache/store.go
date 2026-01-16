@@ -9,13 +9,13 @@ import (
 // GameCache keeps parsed Notion boards in memory for reuse.
 type GameCache struct {
 	mu    sync.RWMutex
-	games map[string]domain.Game
+	games map[string]*domain.Game
 }
 
 // NewGameCache creates an empty cache instance.
 func NewGameCache() *GameCache {
 	return &GameCache{
-		games: make(map[string]domain.Game, 0),
+		games: make(map[string]*domain.Game, 0),
 	}
 }
 
@@ -25,11 +25,15 @@ func (c *GameCache) Get(notionSiteId string) (domain.Game, bool) {
 	defer c.mu.RUnlock()
 
 	val, ok := c.games[notionSiteId]
-	return val, ok
+	if !ok || val == nil {
+		return domain.Game{}, false
+	}
+
+	return *val, true
 }
 
 // Set stores or overwrites a cached entry.
-func (c *GameCache) Set(key string, value domain.Game) {
+func (c *GameCache) Set(key string, value *domain.Game) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 

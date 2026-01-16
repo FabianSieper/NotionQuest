@@ -50,7 +50,8 @@ func createRouter() *chi.Mux {
 
 func addHandler(server *api.Server, router *chi.Mux) {
 	router.Post("/api/sendFeedback", api.SendFeedbackToNotion)
-	router.Post("/api/storeGameState", server.StoreGameStateFromString)
+	router.Post("/api/storeGameStateFromString", server.StoreGameStateFromString)
+	router.Post("/api/storeGameState", server.StoreGameState)
 	router.Get("/api/loadGameStateFromCache/{gameId}", server.LoadGameState)
 	router.Get("/api/version", api.ProjectVersionHandler)
 }

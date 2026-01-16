@@ -24,7 +24,7 @@ func NewServer(cache *cache.GameCache) *Server {
 
 func (s *Server) StoreGameStateFromString(w http.ResponseWriter, r *http.Request) {
 
-	var body request.StoreGameStateFromStringRequestBody
+	var body request.StoreGameFromStringRequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 
 	if err != nil {
@@ -39,19 +39,19 @@ func (s *Server) StoreGameStateFromString(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	gameState, err := gameboard.ParseScenario(body.PlayingBoard)
+	game, err := gameboard.ParseScenario(body.PlayingBoard)
 
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to parse game board. Error: %v", err), http.StatusBadRequest)
 		return
 	}
 
-	s.Cache.Set(body.GameId, *gameState)
+	s.Cache.Set(body.GameId, game)
 }
 
 func (s *Server) StoreGameState(w http.ResponseWriter, r *http.Request) {
 
-	// TODO use StoreGameStateRequestBody instead
+	// TODO: request body does only require state and gameId, nothing else
 	var body request.StoreGameStateRequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 
@@ -62,19 +62,13 @@ func (s *Server) StoreGameState(w http.ResponseWriter, r *http.Request) {
 
 	loadedGame, ok := s.Cache.Get(body.GameId)
 
-	// TODO: continue here
 	if ok {
-		// TODO: just overwrite the current saved game state field
+		toBeSavedGameState := mapper.MapResponseGameState(body.Game.State)
+		loadedGame.SavedState = toBeSavedGameState
+		s.Cache.Set(body.GameId, &loadedGame)
 	} else {
-		// TODO: create completly new entry
-		gameState, err := gameboard.ParseScenario(body.PlayingBoard)
-
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to parse game board. Error: %v", err), http.StatusBadRequest)
-			return
-		}
-
-		s.Cache.Set(body.GameId, *gameState)
+		game := mapper.GameToDomain(body.Game)
+		s.Cache.Set(body.GameId, &game)
 
 	}
 
