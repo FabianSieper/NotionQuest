@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FabianSieper/StepOrDie/internal/models/response"
+	"github.com/FabianSieper/StepOrDie/internal/domain"
 )
 
 // ParseScenario interprets the textual board, for example:
@@ -17,7 +17,7 @@ import (
 // #...####...........#
 // #...#..Z...........#
 // ####################
-func ParseScenario(raw string) (*response.GameState, error) {
+func ParseScenario(raw string) (*domain.Game, error) {
 	rows := strings.Split(raw, "\n")
 	// Rows come from top to bottom, so each string represents the Y axis,
 	// while characters within the row walk along the X axis from left to right.
@@ -25,45 +25,48 @@ func ParseScenario(raw string) (*response.GameState, error) {
 	amountRows, amountCols, err := getAmountRowsAndCols(rows)
 
 	if err != nil {
-		return &response.GameState{}, err
+		return &domain.Game{}, err
 	}
 
 	grid, err := parseGrid(rows)
 
 	if err != nil {
-		return &response.GameState{}, err
+		return &domain.Game{}, err
 	}
 
 	playerPosition, err := getPlayerPosition(rows)
 
 	if err != nil {
-		return &response.GameState{}, err
+		return &domain.Game{}, err
 	}
 
 	enemies := extractEnemies(rows)
 
-	return &response.GameState{
-		Width:  amountCols,
-		Height: amountRows,
-		Grid:   grid,
-		Player: response.Player{
-			Position: playerPosition,
-		},
+	initialGameState := domain.GameState{
+		Player:  domain.Player{Position: playerPosition},
 		Enemies: enemies,
+	}
+
+	return &domain.Game{
+		Width:        amountCols,
+		Height:       amountRows,
+		Grid:         grid,
+		InitialState: initialGameState,
+		SavedState:   initialGameState, // At the beginning, the saved game state is the same as the initial game state
 	}, nil
 }
 
-func extractEnemies(rows []string) []response.Enemy {
-	enemies := make([]response.Enemy, 0)
+func extractEnemies(rows []string) []domain.Enemy {
+	enemies := make([]domain.Enemy, 0)
 	index := 1
 	for y, row := range rows {
 		for x, char := range row {
 			if char == 'M' {
 				enemyId := fmt.Sprintf("enemy_%d", index)
-				enemies = append(enemies, response.Enemy{
+				enemies = append(enemies, domain.Enemy{
 					ID:       enemyId,
-					Position: response.Position{X: x, Y: y},
-					Type:     response.EnemyTypeMonster,
+					Position: domain.Position{X: x, Y: y},
+					Type:     domain.EnemyTypeMonster,
 				})
 				index++
 			}
@@ -73,42 +76,42 @@ func extractEnemies(rows []string) []response.Enemy {
 	return enemies
 }
 
-func getPlayerPosition(rows []string) (response.Position, error) {
-	var playerPosition response.Position
+func getPlayerPosition(rows []string) (domain.Position, error) {
+	var playerPosition domain.Position
 
 	for y, row := range rows {
 		for x, char := range row {
 			if char == 'S' {
-				if playerPosition != (response.Position{}) {
-					return response.Position{}, fmt.Errorf("multiple occurences of character 'S' found. Only one is allowed.")
+				if playerPosition != (domain.Position{}) {
+					return domain.Position{}, fmt.Errorf("multiple occurences of character 'S' found. Only one is allowed.")
 				}
 
-				playerPosition = response.Position{X: x, Y: y}
+				playerPosition = domain.Position{X: x, Y: y}
 			}
 		}
 	}
 
 	// If no player was found
-	if playerPosition == (response.Position{}) {
-		return response.Position{}, fmt.Errorf("player start position 'S' not found")
+	if playerPosition == (domain.Position{}) {
+		return domain.Position{}, fmt.Errorf("player start position 'S' not found")
 	}
 	// Success, exactly one player position was found
 	return playerPosition, nil
 
 }
 
-func parseGrid(rows []string) ([][]response.TileType, error) {
+func parseGrid(rows []string) ([][]domain.TileType, error) {
 
-	var grid [][]response.TileType
+	var grid [][]domain.TileType
 
 	for _, row := range rows {
-		var gridRow []response.TileType
+		var gridRow []domain.TileType
 
 		for _, char := range row {
 			tile, err := parseTile(char)
 
 			if err != nil {
-				return [][]response.TileType{}, err
+				return [][]domain.TileType{}, err
 			}
 			gridRow = append(gridRow, tile)
 		}
@@ -118,19 +121,19 @@ func parseGrid(rows []string) ([][]response.TileType, error) {
 	return grid, nil
 }
 
-var tileMappings = map[rune]response.TileType{
-	'#': response.TileWall,
-	'.': response.TileFloor,
-	'Z': response.TileGoal,
-	'S': response.TileFloor, // start position is represented as floor on the static grid
-	'M': response.TileFloor, // monster spawn points become floor on the static grid
+var tileMappings = map[rune]domain.TileType{
+	'#': domain.TileWall,
+	'.': domain.TileFloor,
+	'Z': domain.TileGoal,
+	'S': domain.TileFloor, // start position is represented as floor on the static grid
+	'M': domain.TileFloor, // monster spawn points become floor on the static grid
 }
 
-func parseTile(char rune) (response.TileType, error) {
+func parseTile(char rune) (domain.TileType, error) {
 	if tile, ok := tileMappings[char]; ok {
 		return tile, nil
 	}
-	return response.TileUnknown, fmt.Errorf("invalid tile character: %c", char)
+	return domain.TileUnknown, fmt.Errorf("invalid tile character: %c", char)
 }
 
 func getAmountRowsAndCols(rows []string) (int, int, error) {

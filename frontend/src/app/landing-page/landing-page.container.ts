@@ -48,7 +48,11 @@ export class LandingPageContainer implements OnInit {
     this.displayDialogType.set(DialogType.LOADING);
 
     try {
-      await this.backendService.storeGameState(this.gameId(), this.gameField(), overwrite);
+      await this.backendService.storeGameStateFromString(
+        this.gameId(),
+        this.gameField(),
+        overwrite
+      );
       this.displayDialogType.set(DialogType.SUCCESS);
 
       // Open game page after some time

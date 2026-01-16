@@ -7,7 +7,8 @@ import (
 
 	"github.com/FabianSieper/StepOrDie/internal/cache"
 	"github.com/FabianSieper/StepOrDie/internal/gameboard"
-	"github.com/FabianSieper/StepOrDie/internal/models/request"
+	"github.com/FabianSieper/StepOrDie/internal/transport/http/request"
+	"github.com/FabianSieper/StepOrDie/internal/transport/http/response/mapper"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -21,9 +22,9 @@ func NewServer(cache *cache.GameCache) *Server {
 	}
 }
 
-func (s *Server) StoreGameState(w http.ResponseWriter, r *http.Request) {
+func (s *Server) StoreGameStateFromString(w http.ResponseWriter, r *http.Request) {
 
-	var body request.StoreGameStateRequestBody
+	var body request.StoreGameStateFromStringRequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 
 	if err != nil {
@@ -48,7 +49,38 @@ func (s *Server) StoreGameState(w http.ResponseWriter, r *http.Request) {
 	s.Cache.Set(body.GameId, *gameState)
 }
 
-func (s *Server) LoadGameStateFromCache(w http.ResponseWriter, r *http.Request) {
+func (s *Server) StoreGameState(w http.ResponseWriter, r *http.Request) {
+
+	// TODO use StoreGameStateRequestBody instead
+	var body request.StoreGameStateRequestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil {
+		http.Error(w, "Failed to decode response body", http.StatusBadRequest)
+		return
+	}
+
+	loadedGame, ok := s.Cache.Get(body.GameId)
+
+	// TODO: continue here
+	if ok {
+		// TODO: just overwrite the current saved game state field
+	} else {
+		// TODO: create completly new entry
+		gameState, err := gameboard.ParseScenario(body.PlayingBoard)
+
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Failed to parse game board. Error: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		s.Cache.Set(body.GameId, *gameState)
+
+	}
+
+}
+
+func (s *Server) LoadGameState(w http.ResponseWriter, r *http.Request) {
 
 	gameId := chi.URLParam(r, "gameId")
 
@@ -59,7 +91,8 @@ func (s *Server) LoadGameStateFromCache(w http.ResponseWriter, r *http.Request) 
 
 	// Load game
 	fmt.Printf("INFO - Trying to load game with id %s\n", gameId)
-	gameState, ok := s.Cache.Get(gameId)
+
+	domaingame, ok := s.Cache.Get(gameId)
 
 	if !ok {
 		http.Error(w, fmt.Sprintf("game with gameId %s was not found in cache", gameId), http.StatusNotFound)
@@ -67,8 +100,10 @@ func (s *Server) LoadGameStateFromCache(w http.ResponseWriter, r *http.Request) 
 	}
 	fmt.Printf("INFO - Successfully loaded game with id %s\n", gameId)
 
+	responseGame := mapper.GameFromDomain(domaingame)
+
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(gameState)
+	err := json.NewEncoder(w).Encode(responseGame)
 
 	if err != nil {
 		http.Error(w, "Could not encode game state", http.StatusInternalServerError)

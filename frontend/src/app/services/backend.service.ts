@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { GameState } from '../model/response/load-game-state.model';
+import { Game } from '../model/game.model';
 
 @Injectable({ providedIn: 'root' })
 export class BackendService {
   private httpClient = inject(HttpClient);
 
-  storeGameState(gameId: string, playingBoard: string, overwrite: boolean) {
+  storeGameStateFromString(gameId: string, playingBoard: string, overwrite: boolean) {
     return firstValueFrom(
       this.httpClient.post<void>(this.getstoreGameStateUrl(), {
         gameId,
@@ -17,10 +17,17 @@ export class BackendService {
     );
   }
 
-  loadGameStateFromCache(gameId: string): Promise<GameState> {
+  storeGameState(gameId: string, game: Game) {
     return firstValueFrom(
-      this.httpClient.get<GameState>(this.getLoadGameStateFromCacheUrl() + gameId)
+      this.httpClient.post<void>(this.getstoreGameStateUrl(), {
+        gameId,
+        game,
+      })
     );
+  }
+
+  loadGameStateFromCache(gameId: string): Promise<Game> {
+    return firstValueFrom(this.httpClient.get<Game>(this.getLoadGameStateFromCacheUrl() + gameId));
   }
 
   sendFeedback(name: string, feedback: string): Promise<void> {
