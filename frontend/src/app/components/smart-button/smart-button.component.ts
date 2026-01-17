@@ -1,8 +1,8 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { SmartButtonConfig } from '../../model/nes-button-config.model';
-import { SmartButtonState } from '../../model/nes-button-state.model';
+import { SmartButtonConfig } from '../../model/smart-button-config.model';
 import { NesButtonVariant } from '../../model/nes-button-variant.model';
+import { SmartButtonState } from '../../model/smart-button-state.model';
 
 // Each state consists of a label and an icon
 // Each click on the button transferes the state back to the next one.

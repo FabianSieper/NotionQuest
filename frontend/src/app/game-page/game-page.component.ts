@@ -4,8 +4,8 @@ import { MusicButtonContainer } from '../components/music-button/music-button.co
 import { SmartButtonComponent } from '../components/smart-button/smart-button.component';
 import { VersionContainer } from '../components/version/version.container';
 import { DialogType } from '../model/dialog-type.model';
-import { SmartButtonState } from '../model/nes-button-state.model';
 import { NesButtonVariant } from '../model/nes-button-variant.model';
+import { SmartButtonState } from '../model/smart-button-state.model';
 import { GameContainer } from './components/game/game.container';
 
 @Component({

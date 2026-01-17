@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { map } from 'rxjs';
 import { DialogType } from '../model/dialog-type.model';
-import { SmartButtonState } from '../model/nes-button-state.model';
+import { SmartButtonState } from '../model/smart-button-state.model';
 import { MusicService } from '../services/music.service';
 import { setAndResetSignalWithDelay } from '../utils/set-and-reset-signal-with-delay';
 import { GamePageComponent } from './game-page.component';

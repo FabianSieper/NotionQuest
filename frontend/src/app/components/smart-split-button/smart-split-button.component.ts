@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
-import { SmartButtonState } from '../../model/nes-button-state.model';
+import { SmartSplitButtonConfig } from '../../model/smart-split-button-config.model';
 import { SmartButtonComponent } from '../smart-button/smart-button.component';
+import { SmartButtonState } from '../../model/smart-button-state.model';
 
 @Component({
   selector: 'app-smart-split-button-component',
@@ -9,13 +10,15 @@ import { SmartButtonComponent } from '../smart-button/smart-button.component';
     <div class="button-row">
       @if(!displaySplitButtons()) {
       <app-smart-button-component
-        [state]="defaultButton()"
+        [state]="defaultButton().state"
+        [buttonVariant]="defaultButton().variant"
         (verifiedButtonClick)="defaultButtonClick.emit()"
       />
       } @else { @for (splitButton of splitButtons(); track $index) {
       <app-smart-button-component
-        [state]="splitButton"
-        (verifiedButtonClick)="splitButtonClick.emit(splitButton)"
+        [state]="splitButton.state"
+        [buttonVariant]="splitButton.variant"
+        (verifiedButtonClick)="splitButtonClick.emit(splitButton.state)"
       />
       } }
     </div>
@@ -23,8 +26,8 @@ import { SmartButtonComponent } from '../smart-button/smart-button.component';
 })
 export class SmartSplitButtonComponent {
   // TODO: add variant settings possibility
-  readonly defaultButton = input.required<SmartButtonState>();
-  readonly splitButtons = input.required<SmartButtonState[]>();
+  readonly defaultButton = input.required<SmartSplitButtonConfig>();
+  readonly splitButtons = input.required<SmartSplitButtonConfig[]>();
   readonly displaySplitButtons = input(false);
 
   readonly defaultButtonClick = output();

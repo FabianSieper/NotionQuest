@@ -5,7 +5,8 @@ import { MusicButtonContainer } from '../components/music-button/music-button.co
 import { SmartSplitButtonComponent } from '../components/smart-split-button/smart-split-button.component';
 import { VersionContainer } from '../components/version/version.container';
 import { DialogType } from '../model/dialog-type.model';
-import { SmartButtonState } from '../model/nes-button-state.model';
+import { NesButtonVariant } from '../model/nes-button-variant.model';
+import { SmartButtonState } from '../model/smart-button-state.model';
 
 @Component({
   selector: 'app-landing-page-component',
@@ -18,34 +19,36 @@ import { SmartButtonState } from '../model/nes-button-state.model';
   ],
   template: `
     @if (!displayDialogType()) {
-    <section class="nes-container is-rounded landing-shell is-dark">
-      <h1>Step or Die!</h1>
-      <label for="game-id-input" class="space-above">Game ID</label>
-      <input id="game-id-input" class="nes-input game-id-input" [(ngModel)]="gameId" />
-      <label for="playing-field" class="space-above">Playing Field</label>
-      <textarea
-        id="playing-field"
-        (input)="handleGameFieldChanged($event)"
-        [value]="gameField()"
-      ></textarea>
-      <app-smart-split-button-component
-        [defaultButton]="SmartButtonState.PLAY"
-        [splitButtons]="[
-          SmartButtonState.CANCEL,
-          SmartButtonState.OVERWRITE,
-          SmartButtonState.LOAD
-        ]"
-        [displaySplitButtons]="duplicateFound()"
-        (defaultButtonClick)="playClicked.emit()"
-        (splitButtonClick)="handlePlaySplitButtonClick($event)"
-      />
-    </section>
-    <div>
-      <button class="nes-btn feedback-button" (click)="openFeedbackPackge.emit()">Feedback</button>
-    </div>
+      <section class="nes-container is-rounded landing-shell is-dark">
+        <h1>Step or Die!</h1>
+        <label for="game-id-input" class="space-above">Game ID</label>
+        <input id="game-id-input" class="nes-input game-id-input" [(ngModel)]="gameId" />
+        <label for="playing-field" class="space-above">Playing Field</label>
+        <textarea
+          id="playing-field"
+          (input)="handleGameFieldChanged($event)"
+          [value]="gameField()"
+        ></textarea>
+        <app-smart-split-button-component
+          [defaultButton]="{ state: SmartButtonState.PLAY, variant: NesButtonVariant.PRIMARY }"
+          [splitButtons]="[
+            { state: SmartButtonState.CANCEL, variant: NesButtonVariant.NORMAL },
+            { state: SmartButtonState.OVERWRITE, variant: NesButtonVariant.NORMAL },
+            { state: SmartButtonState.LOAD, variant: NesButtonVariant.PRIMARY },
+          ]"
+          [displaySplitButtons]="duplicateFound()"
+          (defaultButtonClick)="playClicked.emit()"
+          (splitButtonClick)="handlePlaySplitButtonClick($event)"
+        />
+      </section>
+      <div>
+        <button class="nes-btn feedback-button" (click)="openFeedbackPackge.emit()">
+          Feedback
+        </button>
+      </div>
 
-    <app-version-container />
-    <app-music-button-container />
+      <app-version-container />
+      <app-music-button-container />
     }
 
     <app-info-dialog-component
@@ -96,4 +99,5 @@ export class LandingPageComponent {
   }
 
   protected SmartButtonState = SmartButtonState;
+  protected NesButtonVariant = NesButtonVariant;
 }
