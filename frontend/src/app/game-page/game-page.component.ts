@@ -4,7 +4,7 @@ import { MusicButtonContainer } from '../components/music-button/music-button.co
 import { SmartButtonComponent } from '../components/smart-button/smart-button.component';
 import { VersionContainer } from '../components/version/version.container';
 import { DialogType } from '../model/dialog-type.model';
-import { SmartButtonFeedbackState } from '../model/nes-button-feedback-state.model';
+import { SmartButtonState } from '../model/nes-button-state.model';
 import { NesButtonVariant } from '../model/nes-button-variant.model';
 import { GameContainer } from './components/game/game.container';
 
@@ -40,18 +40,16 @@ import { GameContainer } from './components/game/game.container';
       />
       <div class="button-row">
         <app-smart-button-component
-          [buttonStates]="[{ icon: 'arrow_back' }, { label: 'Sure?' }, { label: 'Sure!' }]"
+          [state]="backGameIdButtonState()"
           (verifiedButtonClick)="backToMenu.emit()"
         />
         <app-smart-button-component
-          [buttonStates]="[{ icon: 'content_copy' }]"
-          [feedbackStateChange]="copyGameIdButtonFeedbackState()"
+          [state]="copyGameIdButtonState()"
           (verifiedButtonClick)="copyGameId.emit()"
         />
         <app-smart-button-component
-          [buttonStates]="[{ icon: 'save' }]"
+          [state]="saveGameButtonState()"
           [buttonVariant]="NesButtonVariant.PRIMARY"
-          [feedbackStateChange]="saveGameButtonFeedbackState()"
           (verifiedButtonClick)="saveGameState.emit()"
         />
       </div>
@@ -63,16 +61,19 @@ import { GameContainer } from './components/game/game.container';
 })
 export class GamePageComponent {
   readonly displayDialogType = input.required<DialogType | undefined>();
-  readonly saveGameButtonFeedbackState = input.required<SmartButtonFeedbackState>();
-  readonly copyGameIdButtonFeedbackState = input.required<SmartButtonFeedbackState>();
+
+  readonly saveGameButtonState = input.required<SmartButtonState>();
+  readonly copyGameIdButtonState = input.required<SmartButtonState>();
+  readonly backGameIdButtonState = input.required<SmartButtonState>();
+  readonly saveGameState = output();
+  readonly copyGameId = output();
+  readonly backToMenu = output();
+
   readonly resetActiveDialogType = output();
   readonly noClicked = output();
   readonly reloadGame = output();
-  readonly backToMenu = output();
   readonly gameWon = output();
   readonly gameLost = output();
-  readonly saveGameState = output();
-  readonly copyGameId = output();
 
   readonly NesButtonVariant = NesButtonVariant;
 }

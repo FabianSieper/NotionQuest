@@ -6,8 +6,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NGXLogger } from 'ngx-logger';
 import { map } from 'rxjs';
 import { DialogType } from '../model/dialog-type.model';
-import { SmartButtonFeedbackState } from '../model/nes-button-feedback-state.model';
+import { SmartButtonState } from '../model/nes-button-state.model';
 import { MusicService } from '../services/music.service';
+import { setAndResetSignalWithDelay } from '../utils/set-and-reset-signal-with-delay';
 import { GamePageComponent } from './game-page.component';
 import { GameService } from './services/game.service';
 
@@ -18,8 +19,9 @@ import { GameService } from './services/game.service';
   template: `
     <app-game-page-component
       [displayDialogType]="displayDialogType()"
-      [saveGameButtonFeedbackState]="saveGameButtonFeedbackState()"
-      [copyGameIdButtonFeedbackState]="copyGameIdButtonFeedbackState()"
+      [saveGameButtonState]="saveGameButtonState()"
+      [copyGameIdButtonState]="copyGameIdButtonState()"
+      [backGameIdButtonState]="backButtonState()"
       (resetActiveDialogType)="this.displayDialogType.set(undefined)"
       (noClicked)="displayDialogType.set(undefined)"
       (backToMenu)="router.navigate(['/'])"
@@ -40,12 +42,15 @@ export class GamePageContainer implements OnInit {
   private readonly clipboard = inject(Clipboard);
 
   protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
-  protected readonly saveGameButtonFeedbackState = signal(SmartButtonFeedbackState.NONE);
-  protected readonly copyGameIdButtonFeedbackState = signal(SmartButtonFeedbackState.NONE);
+  protected readonly saveGameButtonState = signal(SmartButtonState.SAVE);
+  protected readonly copyGameIdButtonState = signal(SmartButtonState.COPY);
+  protected readonly backButtonState = signal(SmartButtonState.BACK);
 
   protected readonly gameId: Signal<string | undefined> = toSignal(
     this.route.paramMap.pipe(map((map) => map.get('gameId') ?? undefined))
   );
+
+  private readonly RESET_SMART_BUTTON_STATE_DELAY = 2500;
 
   loadGameOnGameIdChange = effect(async () => {
     const gameId = this.gameId();
@@ -63,23 +68,43 @@ export class GamePageContainer implements OnInit {
       throw Error('Could nto copy game id, as game id is undefined');
     }
     this.clipboard.copy(gameId);
-    this.copyGameIdButtonFeedbackState.set(SmartButtonFeedbackState.SUCCESS);
+    this.copyGameIdButtonState.set(SmartButtonState.SUCCESS);
+    setTimeout(
+      () => this.copyGameIdButtonState.set(SmartButtonState.COPY),
+      this.RESET_SMART_BUTTON_STATE_DELAY
+    );
   }
 
   protected async saveGameState() {
     const gameId = this.gameId();
     if (!gameId) {
-      this.saveGameButtonFeedbackState.set(SmartButtonFeedbackState.ERROR);
+      setAndResetSignalWithDelay(
+        this.saveGameButtonState,
+        SmartButtonState.ERROR,
+        SmartButtonState.SAVE,
+        this.RESET_SMART_BUTTON_STATE_DELAY
+      );
       throw Error('Game id is undefined. Failed to save game.');
     }
 
-    this.saveGameButtonFeedbackState.set(SmartButtonFeedbackState.LOADING);
+    this.saveGameButtonState.set(SmartButtonState.LOADING);
+
     try {
       await this.gameService.saveGameState(gameId);
-      this.saveGameButtonFeedbackState.set(SmartButtonFeedbackState.SUCCESS);
+      setAndResetSignalWithDelay(
+        this.saveGameButtonState,
+        SmartButtonState.SUCCESS,
+        SmartButtonState.SAVE,
+        this.RESET_SMART_BUTTON_STATE_DELAY
+      );
     } catch (error) {
       this.logger.error('Failed to save game state');
-      this.saveGameButtonFeedbackState.set(SmartButtonFeedbackState.ERROR);
+      setAndResetSignalWithDelay(
+        this.saveGameButtonState,
+        SmartButtonState.ERROR,
+        SmartButtonState.SAVE,
+        this.RESET_SMART_BUTTON_STATE_DELAY
+      );
     }
   }
 

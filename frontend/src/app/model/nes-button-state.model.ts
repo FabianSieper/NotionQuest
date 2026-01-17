@@ -1,4 +1,8 @@
-export interface SmartButtonState {
-  label?: string;
-  icon?: string;
+export enum SmartButtonState {
+  SUCCESS = 'SUCCESS',
+  COPY = 'COPY',
+  ERROR = 'ERROR',
+  BACK = 'BACK',
+  SAVE = 'SAVE',
+  LOADING = 'LOADING',
 }
