@@ -24,7 +24,7 @@ import { SmartButtonState } from '../../model/smart-button-state.model';
           </div>
         }
         @if (currentButtonConfig().icon) {
-          <mat-icon>{{ currentButtonConfig().icon }}</mat-icon>
+          <mat-icon [class]="setIconAnimation()">{{ currentButtonConfig().icon }}</mat-icon>
         }
       </div>
     </button>
@@ -59,11 +59,16 @@ export class SmartButtonComponent {
     [SmartButtonState.BACK, [{ icon: 'arrow_back' }, { label: 'Sure?' }, { label: 'Sure!' }]],
   ]);
 
+  protected readonly setIconAnimation = computed(() =>
+    this.state() === SmartButtonState.LOADING ? 'spinning-animation' : '',
+  );
+
   protected readonly isButtonDisabled = computed(
     () =>
       this.state() === SmartButtonState.SUCCESS ||
       this.state() === SmartButtonState.ERROR ||
-      this.state() === SmartButtonState.LOADING,
+      this.state() === SmartButtonState.LOADING ||
+      this.buttonVariant() === NesButtonVariant.DISABLED,
   );
 
   protected readonly currentButtonConfig = computed(() => {

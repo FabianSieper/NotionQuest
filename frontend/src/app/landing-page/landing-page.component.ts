@@ -24,13 +24,21 @@ import { SmartButtonState } from '../model/smart-button-state.model';
       <section class="nes-container is-rounded landing-shell is-dark">
         <h1>Step or Die!</h1>
         <label for="game-id-input" class="space-above">Game ID</label>
-        <input
-          id="game-id-input"
-          class="nes-input game-id-input"
-          [(ngModel)]="gameId"
-          [disabled]="shallUserInteractionsBeDisabled()"
-        />
+        <div class="label-input-row">
+          <input
+            id="game-id-input"
+            class="nes-input game-id-input"
+            [(ngModel)]="gameId"
+            [disabled]="shallUserInteractionsBeDisabled()"
+          />
+          <app-smart-button-component
+            [state]="copyButtonState()"
+            [buttonVariant]="getNormalButtonVariant()"
+            (verifiedButtonClick)="copyGameIdClicked.emit()"
+          />
+        </div>
         <label for="playing-field" class="space-above">Playing Field</label>
+        <!-- TODO: i have to maek sure that the font is exactly so big that 15 chars are fitting in height and width -->
         <textarea
           [disabled]="shallUserInteractionsBeDisabled()"
           id="playing-field"
@@ -41,20 +49,25 @@ import { SmartButtonState } from '../model/smart-button-state.model';
           <app-smart-split-button-component
             [defaultButton]="{ state: playButtonState(), variant: NesButtonVariant.PRIMARY }"
             [splitButtons]="[
-              { state: SmartButtonState.CANCEL, variant: NesButtonVariant.NORMAL },
-              { state: SmartButtonState.OVERWRITE, variant: NesButtonVariant.NORMAL },
-              { state: SmartButtonState.LOAD, variant: NesButtonVariant.PRIMARY },
+              {
+                state: handleLoadingState(SmartButtonState.CANCEL),
+                variant: NesButtonVariant.NORMAL,
+              },
+              {
+                state: handleLoadingState(SmartButtonState.OVERWRITE),
+                variant: NesButtonVariant.NORMAL,
+              },
+              {
+                state: handleLoadingState(SmartButtonState.LOAD),
+                variant: NesButtonVariant.PRIMARY,
+              },
             ]"
             [displaySplitButtons]="duplicateFound()"
             (defaultButtonClick)="playClicked.emit()"
             (splitButtonClick)="handlePlaySplitButtonClick($event)"
           />
           <app-smart-button-component
-            [buttonVariant]="
-              shallUserInteractionsBeDisabled()
-                ? NesButtonVariant.DISABLED
-                : NesButtonVariant.NORMAL
-            "
+            [buttonVariant]="getNormalButtonVariant()"
             [state]="SmartButtonState.FEEDBACK"
             (verifiedButtonClick)="openFeedbackPackge.emit()"
           />
@@ -81,6 +94,7 @@ export class LandingPageComponent {
   readonly gameId = model.required<string>();
   readonly duplicateFound = input.required<boolean>();
   readonly playButtonState = input.required<SmartButtonState>();
+  readonly copyButtonState = input.required<SmartButtonState>();
 
   readonly playClicked = output();
   readonly resetPlayButtonState = output();
@@ -91,8 +105,19 @@ export class LandingPageComponent {
   readonly loadGame = output<void>();
   readonly resetActiveDialogType = output();
   readonly openFeedbackPackge = output();
+  readonly copyGameIdClicked = output();
 
   protected readonly showInputError = signal(false);
+
+  protected readonly getNormalButtonVariant = computed(() =>
+    this.shallUserInteractionsBeDisabled() ? NesButtonVariant.DISABLED : NesButtonVariant.NORMAL,
+  );
+
+  protected readonly getNormalDuplicateButtonVariant = computed(() =>
+    this.shallDuplicateFoundButtonsBeDisabled()
+      ? NesButtonVariant.DISABLED
+      : NesButtonVariant.NORMAL,
+  );
 
   protected readonly shallUserInteractionsBeDisabled = computed(
     () =>
@@ -101,11 +126,21 @@ export class LandingPageComponent {
       this.duplicateFound(),
   );
 
+  protected readonly shallDuplicateFoundButtonsBeDisabled = computed(
+    () =>
+      this.playButtonState() === SmartButtonState.SUCCESS ||
+      this.playButtonState() === SmartButtonState.LOADING,
+  );
+
   protected handleGameFieldChanged(event: Event) {
     const target = event.target as HTMLTextAreaElement;
     const value = target.value;
 
     this.changedGameField.emit(value);
+  }
+
+  protected handleLoadingState(defaultState: SmartButtonState) {
+    return this.shallDuplicateFoundButtonsBeDisabled() ? SmartButtonState.LOADING : defaultState;
   }
 
   protected handlePlaySplitButtonClick(buttonState: SmartButtonState) {

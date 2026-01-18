@@ -8,6 +8,7 @@ import { BackendService } from '../services/backend.service';
 import { MusicService } from '../services/music.service';
 import { setAndResetSignalWithDelay } from '../utils/set-and-reset-signal-with-delay';
 import { LandingPageComponent } from './landing-page.component';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-landing-page-container',
@@ -18,11 +19,13 @@ import { LandingPageComponent } from './landing-page.component';
       [gameField]="gameField()"
       [displayDialogType]="displayDialogType()"
       [playButtonState]="playButtonState()"
+      [copyButtonState]="copyButtonState()"
       [duplicateFound]="duplicateFound()"
       (changedGameField)="handleGameFieldChange($event)"
       (playClicked)="storeGameState()"
       (overwriteGame)="overwriteGameState()"
       (resetPlayButtonState)="duplicateFound.set(false)"
+      (copyGameIdClicked)="handleCopyGameIdClicked()"
       (loadGame)="loadExistingGame()"
       (resetActiveDialogType)="this.displayDialogType.set(undefined)"
       (openFeedbackPackge)="router.navigate(['/feedback'])"
@@ -34,6 +37,7 @@ export class LandingPageContainer implements OnInit {
   protected router = inject(Router);
   protected musicService = inject(MusicService);
   protected backendService = inject(BackendService);
+  protected clipboard = inject(Clipboard);
 
   private readonly USER_FEEDBACK_DISPLAY_TIME = 1500;
 
@@ -42,6 +46,7 @@ export class LandingPageContainer implements OnInit {
 
   protected readonly duplicateFound = signal(false);
   protected readonly playButtonState = signal(SmartButtonState.PLAY);
+  protected readonly copyButtonState = signal(SmartButtonState.COPY);
 
   protected readonly displayDialogType = signal<DialogType | undefined>(undefined);
   protected readonly version = signal<string | undefined>(undefined);
@@ -50,6 +55,17 @@ export class LandingPageContainer implements OnInit {
     this.setInitGameField();
     this.setRandomGameId();
     this.initMusicService();
+  }
+
+  protected handleCopyGameIdClicked() {
+    const wasCopied = this.clipboard.copy(this.gameId());
+    const nextState = wasCopied ? SmartButtonState.SUCCESS : SmartButtonState.ERROR;
+    setAndResetSignalWithDelay(
+      this.copyButtonState,
+      nextState,
+      SmartButtonState.COPY,
+      this.USER_FEEDBACK_DISPLAY_TIME,
+    );
   }
 
   protected async storeGameState(overwrite = false) {
@@ -74,7 +90,7 @@ export class LandingPageContainer implements OnInit {
     } catch (error) {
       this.displayDialogType.set(undefined);
 
-      this.handleRequestError(error);
+      this.c(error);
       // TODO: disble all input fields and other buttons
     }
   }
@@ -117,7 +133,7 @@ export class LandingPageContainer implements OnInit {
     );
   }
 
-  private handleRequestError(error: unknown) {
+  private c(error: unknown) {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 400) {
         setAndResetSignalWithDelay(

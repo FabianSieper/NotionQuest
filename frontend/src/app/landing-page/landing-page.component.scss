@@ -23,10 +23,10 @@
 }
 
 .game-id-input {
-    width: 300px;
-    margin-top: 0px;
-    border: 0px;
+    width: 240px;
+    height: 50px;
     text-align: center;
+    margin-top: 0px;
 }
 
 textarea {
@@ -37,7 +37,7 @@ textarea {
     padding-inline-start: 8px;
     margin-bottom: 10px;
 }
-
+  
 h1 {
     text-align: center;
 }
@@ -50,5 +50,8 @@ h1 {
 .button-row {
     display: flex;
     flex-direction: row;
-    
+}
+
+.label-input-row {
+    margin-top: 0px;
 }
