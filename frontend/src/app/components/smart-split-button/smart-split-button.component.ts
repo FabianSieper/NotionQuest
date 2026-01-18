@@ -8,21 +8,24 @@ import { SmartButtonState } from '../../model/smart-button-state.model';
   imports: [SmartButtonComponent],
   template: `
     <div class="button-row">
-      @if(!displaySplitButtons()) {
-      <app-smart-button-component
-        [state]="defaultButton().state"
-        [buttonVariant]="defaultButton().variant"
-        (verifiedButtonClick)="defaultButtonClick.emit()"
-      />
-      } @else { @for (splitButton of splitButtons(); track $index) {
-      <app-smart-button-component
-        [state]="splitButton.state"
-        [buttonVariant]="splitButton.variant"
-        (verifiedButtonClick)="splitButtonClick.emit(splitButton.state)"
-      />
-      } }
+      @if (!displaySplitButtons()) {
+        <app-smart-button-component
+          [state]="defaultButton().state"
+          [buttonVariant]="defaultButton().variant"
+          (verifiedButtonClick)="defaultButtonClick.emit()"
+        />
+      } @else {
+        @for (splitButton of splitButtons(); track $index) {
+          <app-smart-button-component
+            [state]="splitButton.state"
+            [buttonVariant]="splitButton.variant"
+            (verifiedButtonClick)="splitButtonClick.emit(splitButton.state)"
+          />
+        }
+      }
     </div>
   `,
+  styleUrl: './smart-split-button.component.scss',
 })
 export class SmartSplitButtonComponent {
   // TODO: add variant settings possibility
